@@ -1,0 +1,22 @@
+Timeline design choices
+
+jiahuang: d3-timeline
+https://github.com/jiahuang/d3-timeline
+
+events (not open source)
+http://timeline.knightlab.com
+
+simile: events and time threads
+http://www.simile-widgets.org/timeline/
+
+bunkat: time threads and thumbnails
+http://bl.ocks.org/bunkat/1962173
+
+rengel-de: threads timeline
+http://bl.ocks.org/rengel-de/5603464
+
+eventdrops: event series
+https://github.com/marmelab/EventDrops
+
+biovisualize, summary of the former approaches
+http://biovisualize.github.io/d3visualization/#visualizationType=timeline

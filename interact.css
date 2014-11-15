@@ -1,0 +1,20 @@
+h1 {
+    text-align: center;
+    color: blue;
+    font-size: 24pt;
+} 
+
+select {
+    color: black;
+    /* This is a single-line comment */
+    text-align: center;
+    margin: 1000;
+    display: table-cell;
+    width: 100;
+}
+
+button {
+    display: table-cell;
+    width: 150;
+}
+
