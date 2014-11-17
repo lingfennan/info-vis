@@ -1,6 +1,6 @@
 h1 {
     text-align: center;
-    color: blue;
+    color: #980002 ;
     font-size: 24pt;
 } 
 
@@ -8,7 +8,7 @@ select {
     color: black;
     /* This is a single-line comment */
     text-align: center;
-    margin: 1000;
+    margin: 100;
     display: table-cell;
     width: 100;
 }

@@ -8,7 +8,7 @@
     <title>Conflict History between Israel and Palestine</title>
 
     <!-- That's my local d3 path. When working locally, use your local path. -->
-    <script src="lib/d3.v3.min.js"></script>
+    <script src="lib/d3.js"></script>
 
     <!-- That's the 'official' path. Comment out, when working locally. -->
     <!--script src="http://d3js.org/d3.v3.min.js"></script>-->
@@ -22,18 +22,14 @@
 </head>
 
 <body onload="init()">
-
-	<h1> Conflict History between Israel and Palestine </h1>
-
-<label for="xdropdown">Showing: </label><select id="xdropdown">
-    <option val="allevents">allevents</option>
-    <option val="something">something</option>
-</select>
-<label for="ydropdown">Events clustered by: </label><select id="ydropdown">
-    <option val="region">region</option>
-    <option val="category">category</option>
-</select>
-<button id="update" onclick="updateClicked()">Update</button>
+	<h1> Conflict History between Israel and Palestine </h1> 
+    <label for="showing">Showing: </label>
+	<select id="showing" onchange="updateSelected(this.id, this.value)">
+	</select>
+	<label for="cluster">Events clustered by: </label>
+	<select id="cluster" onchange="updateSelected(this.id, this.value)">
+		<!--option>Please Select</option>-->
+	</select>
 
 <div id="timeline"></div>
 
@@ -94,11 +90,11 @@
 
     // Define domElement and sourceFile
     var domElement = "#timeline";
+	var mysourceFile = "data.csv";
     var sourceFile = "philosophers.csv";
 
     // Read in the data and construct the timeline
     d3.csv(sourceFile, function(dataset) {
-
         timeline(domElement)
             .data(dataset)
             .band("mainBand", 0.82)
