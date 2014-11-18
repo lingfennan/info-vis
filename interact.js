@@ -22,6 +22,9 @@ function init() {
 		type.push("All Events");
 		organizations.push("All Organizations");
 		dataset.forEach(function(d) {
+			d.label = d["Title"];
+			d.start = d["Date"];
+			d.end = d["DateEnded"];
 			if ((typeof d["Type"] != "undefined") &&
 				(d["Type"] != "")) {
 				type.push(d["Type"]);
@@ -36,8 +39,6 @@ function init() {
 		addOptions(d3.select("#showing"), type);
 		addOptions(d3.select("#cluster"), cluster);
 		updateSelectedDataset();
-		console.log(type);
-		console.log(globalDataset);
 	});
 }
 
@@ -55,15 +56,19 @@ function updateSelectedDataset() {
 	var cluster_choice = d3.select("#cluster").node().value;
 	console.log(showing_choice);
 	console.log(cluster_choice);
-	var data = globalDataset.nest()
+	var data = d3.nest()
 		.key(function(d) {
-			if (d[cluster_choice] == showing_choice) {
+			if (showing_choice == "All Events") {
+				return d[cluster_choice];
+			} else if (d[cluster_choice] == showing_choice) {
 				return d[cluster_choice];
 			}
+		})
 		.rollup(function(d) {
 			d.start = d["Date"];
 			d.end = d["DateEnded"];
-		}
+		})
+		.entries(globalDataset);
 
 }
 
