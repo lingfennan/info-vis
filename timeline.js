@@ -59,7 +59,7 @@ function timeline(domElement) {
         var today = new Date(),
             tracks = [],
             yearMillis = 31622400000,
-            instantOffset = 100 * yearMillis;
+            instantOffset = 1 * yearMillis;
 
         data.items = items;
 
@@ -139,16 +139,18 @@ function timeline(domElement) {
 
         // Convert yearStrings into dates
         data.items.forEach(function (item){
-            item.start = parseDate(item.start);
+			// RUIAN
+            //item.start = parseDate(item.start);
             if (item.end == "") {
-                //console.log("1 item.start: " + item.start);
-                //console.log("2 item.end: " + item.end);
+                console.log("1 item.start: " + item.start);
+                console.log("2 item.end: " + item.end);
+				console.log(item.label);
                 item.end = new Date(item.start.getTime() + instantOffset);
-                //console.log("3 item.end: " + item.end);
+                console.log("3 item.end: " + item.end);
                 item.instant = true;
             } else {
                 //console.log("4 item.end: " + item.end);
-                item.end = parseDate(item.end);
+                //item.end = parseDate(item.end);
                 item.instant = false;
             }
             // The timeline never reaches into the future.
@@ -167,6 +169,8 @@ function timeline(domElement) {
         data.nTracks = tracks.length;
         data.minDate = d3.min(data.items, function (d) { return d.start; });
         data.maxDate = d3.max(data.items, function (d) { return d.end; });
+		console.log(data.minDate);
+		console.log(data.maxDate);
 
         return timeline;
     };
@@ -450,6 +454,12 @@ function timeline(domElement) {
         })
     };
 
+
+    return timeline;
+}
+
+
+
     //--------------------------------------------------------------------------
     //
     // Utility functions
@@ -506,5 +516,3 @@ function timeline(domElement) {
         return (-year) + bcString;
     }
 
-    return timeline;
-}
