@@ -74,6 +74,8 @@ function init() {
 }
 
 function updateSelectedDataset() {
+	d3.select(domElement).selectAll("#svg").remove();
+
 	var showing_choice = d3.select("#showing").node().value;
 	var cluster_choice = d3.select("#cluster").node().value;
 	console.log(showing_choice);
@@ -120,7 +122,7 @@ function updateSelectedDataset() {
 }
 
 
-function timelint_init() {
+//function timelint_init() {
     /*  You need a domElement, a sourceFile and a timeline.
 
         The domElement will contain your timeline.
@@ -196,4 +198,4 @@ function timelint_init() {
 //
 //</script>
 
-}
+//}
