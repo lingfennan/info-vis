@@ -1,130 +1,92 @@
-// The interactive part for timeline. And util functions.
 
-// Global variables, initialized by init()
+var allEvents = [];
+
 var eventTypes = [];
 var organizations = [];
-var globalDataset;	// This can be used for plotting dots.
-var cluster = ["Type", "Orgs Involved"];
-
-// Use by timeline_init
-var domElement = "#timeline";
-var mysourceFile = "datasample.csv";
-var sourceFile = "philosophers.csv";
-
-
-
-function addOptions(select, data) {
-	select.selectAll("option").remove();
-	select.selectAll("option").data(data).enter().append("option").text(function(d) {
-		return d;
-	})
-	.attr("value", function(d) {
-	    return d;
-	});
-}
+var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
 
 function init() {
-	d3.csv(mysourceFile, function(dataset) {
+	d3.csv('data.csv', function(dataset) {
 		eventTypes.push("All Events");
 		organizations.push("All Organizations");
 
+        var eventsById = {};
+
 		dataset.forEach(function(d) {
-			d.title = d["Title"];  // Used for plotting dots.
-			d.start = parseDate(d["Date"]);
-            if (d["DateEnded"] == "") {
-                d.end = "";
-            } else {
-				d.end = parseDate(d["DateEnded"]);
+            var e = new Event();
+
+			e.setTitle(d["title"]);
+			e.setStartDate(d["dateStarted"]);
+            if (d["dateEnded"] != "") {
+                e.setEndDate(d["dateEnded"]);
             }
-			
-			if ((typeof d["Type"] != "undefined") && (d["Type"] != "")) {
-				eventTypes.push(d["Type"]);
+			if ((typeof d["eventType"] != "undefined") && (d["eventType"] != "")) {
+				eventTypes.push(d["eventType"]);
+                e.setEventType(d["eventType"]);
 			}
-			if ((typeof d["Orgs Involved"] != "undefined") && (d["Orgs Involved"] != "")) {
-				organizations.push(d["Orgs Involved"]);
+			if ((typeof d["causedByOrgs"] != "undefined") && (d["causedByOrgs"] != "")) {
+                var orgs = d["causedByOrgs"].split(',');
+				organizations.push.apply(organizations, orgs);
+                e.setOrganizations(orgs);
 			}
+
+            e.setNarrative(d["narrative"]);
+            e.setReferences(d["references"])
+            e.setLocation(d['location']);
+            e.setPeople(d['peopleInvolved']);
+            e.setCausedByEvents(d['causedByEvents']);
+            e.setChains(d['chains']);
+
+            allEvents.push(e);
+            eventsById[d['eventId']] = e;
 		});
+
+        allEvents.forEach(function(e) {
+            var deps = [];
+            e.causedByEvents.split(',').forEach(function (c) {
+                deps.push(eventsById[parseInt(c)]);
+            });
+            e.setCausedByEvents(deps);
+        });
+
 		eventTypes = d3.set(eventTypes).values();
 		organizations = d3.set(organizations).values();
 
-		addOptions(d3.select("#showing"), eventTypes);
-		addOptions(d3.select("#cluster"), cluster);
-		globalDataset = dataset;
+        addOptions(d3.select("#showing"), eventTypes);
+        addOptions(d3.select("#cluster"), clusterBy);
 
-		updateSelectedDataset();
+        timeline('#timeline')
+            .events(allEvents, function(e) { return e.eventChains; })
+            .draw();
 	});
 }
-
-function updateSelectedDataset() {
-	d3.select(domElement).selectAll("#svg").remove();
-
-	var showing_choice = d3.select("#showing").node().value;
-	var cluster_choice = d3.select("#cluster").node().value;
-
-	console.log(showing_choice);
-	console.log(cluster_choice);
-
-	// Set label
-	globalDataset.forEach(function(d) {
-		d.label = d[cluster_choice];
-	});
-	var selectedDataset = d3.nest()
-		.key(function(d) {
-			if (showing_choice == "All Events") {
-				return d.label;
-			} else if (d.label == showing_choice) {
-				return d.label;
-			}
-		})
-		.rollup(function(d) {
-			return {"start": d3.min(d, function (g) { return g.start; }),
-			   	"end": d3.max(d, function(g) { return (g.end == "" ? g.start : g.end); })};
-		})
-		.entries(globalDataset);
-
-	var eventDataset = d3.nest()
-		.key(function(d) {
-			return d.title;
-		})
-		.rollup(function(d) {
-			return {"start": d3.min(d, function(g) { return g.start; }),
-			   	"end": ""};
-		})
-		.entries(globalDataset);
-
-	eventDataset.forEach(function(d) {
-		console.log(d.values);
-	});
-
-	for (var i = 0, n = eventDataset.length; i < n; i++) {
-		selectedDataset.push(eventDataset[i]);
-	}
-	selectedDataset.forEach(function(d) {
-		console.log(d.key);
-		console.log(d.values);
-		d.label = d.key;
-		d.start = d.values.start;
-		d.end = d.values.end;
-	});
-	selectedDataset.forEach(function(d) {
-		console.log(d.label);
-		console.log(d.start);
-		console.log(d.end);
-	});
+//
+//function drawTimeline() {
+//
+//    var clusteringFunction = null;
+//
+//	var cluster_choice = d3.select("#cluster").node().value;
+//    if(cluster_choice == 'Type') {
+//        clusteringFunction = function(e) { return e.eventType; }
+//    } else if(cluster_choice == 'Event Chains') {
+//        clusteringFunction = function(e) { return e.eventChains; }
+//    } else {
+//        clusteringFunction = function(e) { return e.causedByOrganizations; }
+//    }
+//
+//
+//
+//}
 
 
-	timeline(domElement)
-		.data(selectedDataset)
-	    .band("mainBand", 0.82)
-        .band("naviBand", 0.08)
-        .xAxis("mainBand")
-        .tooltips("mainBand")
-        .xAxis("naviBand")
-        .labels("mainBand")
-        .labels("naviBand")
-        .brush("naviBand", ["mainBand"])
-        .redraw();
-
+function addOptions(select, data) {
+    select.selectAll("option").remove();
+    select.selectAll("option").data(data).enter().append("option").text(function(d) {
+        return d;
+    })
+        .attr("value", function(d) {
+            return d;
+        });
 }
 
 
