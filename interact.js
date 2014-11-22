@@ -1,7 +1,7 @@
 // The interactive part for timeline. And util functions.
 
 // Global variables, initialized by init()
-var type = [];
+var eventTypes = [];
 var organizations = [];
 var globalDataset;	// This can be used for plotting dots.
 var cluster = ["Type", "Orgs Involved"];
@@ -25,8 +25,9 @@ function addOptions(select, data) {
 
 function init() {
 	d3.csv(mysourceFile, function(dataset) {
-		type.push("All Events");
+		eventTypes.push("All Events");
 		organizations.push("All Organizations");
+
 		dataset.forEach(function(d) {
 			d.title = d["Title"];  // Used for plotting dots.
 			d.start = parseDate(d["Date"]);
@@ -35,42 +36,26 @@ function init() {
             } else {
 				d.end = parseDate(d["DateEnded"]);
             }
-			if ((typeof d["Type"] != "undefined") &&
-				(d["Type"] != "")) {
-				type.push(d["Type"]);
+			
+			if ((typeof d["Type"] != "undefined") && (d["Type"] != "")) {
+				eventTypes.push(d["Type"]);
 			}
-			if ((typeof d["Orgs Involved"] != "undefined") &&
-				(d["Orgs Involved"] != "")) {
+			if ((typeof d["Orgs Involved"] != "undefined") && (d["Orgs Involved"] != "")) {
 				organizations.push(d["Orgs Involved"]);
 			}
 			console.log(d.title);
 			console.log(d.start);
 			console.log(d.end);
 		});
-		type = d3.set(type).values();  // On init, showing is default to type
+		eventTypes = d3.set(eventTypes).values();
 		organizations = d3.set(organizations).values();
-		addOptions(d3.select("#showing"), type);
+
+		addOptions(d3.select("#showing"), eventTypes);
 		addOptions(d3.select("#cluster"), cluster);
 		globalDataset = dataset;
+
 		updateSelectedDataset();
 	});
-
-//    d3.csv(sourceFile, function(dataset) {
-//        timeline(domElement)
-//            .data(dataset)
-//            .band("mainBand", 0.82)
-//            .band("naviBand", 0.08)
-//            .xAxis("mainBand")
-//            .tooltips("mainBand")
-//            .xAxis("naviBand")
-//            .labels("mainBand")
-//            .labels("naviBand")
-//            .brush("naviBand", ["mainBand"])
-//            .redraw();
-//
-//    });
-
-
 }
 
 function updateSelectedDataset() {
@@ -78,8 +63,10 @@ function updateSelectedDataset() {
 
 	var showing_choice = d3.select("#showing").node().value;
 	var cluster_choice = d3.select("#cluster").node().value;
+
 	console.log(showing_choice);
 	console.log(cluster_choice);
+
 	// Set label
 	globalDataset.forEach(function(d) {
 		d.label = d[cluster_choice];
@@ -122,7 +109,6 @@ function updateSelectedDataset() {
 }
 
 
-//function timelint_init() {
     /*  You need a domElement, a sourceFile and a timeline.
 
         The domElement will contain your timeline.
@@ -176,26 +162,3 @@ function updateSelectedDataset() {
         - rearrange the definitions of the components.
     */
 
-    // Define domElement and sourceFile
-	
-//<script>
-//
-//    // Read in the data and construct the timeline
-//    d3.csv(sourceFile, function(dataset) {
-//        timeline(domElement)
-//            .data(dataset)
-//            .band("mainBand", 0.82)
-//            .band("naviBand", 0.08)
-//            .xAxis("mainBand")
-//            .tooltips("mainBand")
-//            .xAxis("naviBand")
-//            .labels("mainBand")
-//            .labels("naviBand")
-//            .brush("naviBand", ["mainBand"])
-//            .redraw();
-//
-//    });
-//
-//</script>
-
-//}
