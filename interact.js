@@ -43,9 +43,6 @@ function init() {
 				(d["Orgs Involved"] != "")) {
 				organizations.push(d["Orgs Involved"]);
 			}
-			console.log(d.title);
-			console.log(d.start);
-			console.log(d.end);
 		});
 		type = d3.set(type).values();  // On init, showing is default to type
 		organizations = d3.set(organizations).values();
@@ -97,10 +94,32 @@ function updateSelectedDataset() {
 			   	"end": d3.max(d, function(g) { return (g.end == "" ? g.start : g.end); })};
 		})
 		.entries(globalDataset);
+
+	var eventDataset = d3.nest()
+		.key(function(d) {
+			return d.title;
+		})
+		.rollup(function(d) {
+			return {"start": d3.min(d, function(g) { return g.start; }),
+			   	"end": ""};
+		})
+		.entries(globalDataset);
+
+	eventDataset.forEach(function(d) {
+		console.log(d.values);
+	});
+
+	for (var i = 0, n = eventDataset.length; i < n; i++) {
+		selectedDataset.push(eventDataset[i]);
+	}
 	selectedDataset.forEach(function(d) {
+		console.log(d.key);
+		console.log(d.values);
 		d.label = d.key;
 		d.start = d.values.start;
 		d.end = d.values.end;
+	});
+	selectedDataset.forEach(function(d) {
 		console.log(d.label);
 		console.log(d.start);
 		console.log(d.end);
