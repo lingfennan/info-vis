@@ -76,8 +76,13 @@ Event.prototype.setCausedByEvents = function(es) {
     this.causedByEvents = es;
 }
 
-Event.prototype.setChains = function(cs) {
-    this.eventChains = cs;
+Event.prototype.setChains = function (chains) {
+    var spl = chains.split(',');
+    spl.forEach(function(c, i) {
+        if(c.trim() != '') {
+            this.eventChains.push(c.trim());
+        }
+    }, this);
 }
 
 Event.prototype.isExtendedEvent = function() {

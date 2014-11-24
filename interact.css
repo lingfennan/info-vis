@@ -1,3 +1,7 @@
+body {
+    margin: 0;
+}
+
 h1 {
     text-align: center;
     color: #980002 ;
@@ -15,6 +19,23 @@ select {
 
 #timeline {
     overflow-y: scroll;
+}
+
+.cluster-g .cluster-rect {
+    fill: #D8EBF2;
+}
+
+.cluster-g .cluster-rect.hovered {
+    stroke-width: 3px;
+    stroke: red;
+}
+
+.cluster-g .cluster-title {
+    visibility: hidden;
+}
+
+.cluster-g .cluster-title.hovered {
+    visibility: visible;
 }
 
 button {

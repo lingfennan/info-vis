@@ -5,7 +5,17 @@ var EventCluster = function(title, events) {
 
     this.endDate = d3.max(events, function(e) { return e.isExtendedEvent() ? e.endDate : e.startDate; });
 
-    this.events = events;
+    this.pointEvents = [];
+    this.extendedEvents = [];
+
+    events.forEach(function(e) {
+        if(e.isExtendedEvent()) {
+            this.extendedEvents.push(e);
+        } else {
+            this.pointEvents.push(e);
+        }
+    }, this)
+
 
     // view related info
     this.startx = 0;

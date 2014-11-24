@@ -8,6 +8,8 @@ function timeline(selector) {
         minDate = null,
         maxDate = null;
 
+    var Y = function(d) { return d*60 + 20; }
+
     return timeline = {
 
         events: function (items, getClusterKeys) {
@@ -67,8 +69,8 @@ function timeline(selector) {
                 .range([0,width]);
 
             eventClusters.forEach(function (ec) {
-                ec.startx = scale(ec.startDate);
-                ec.endx = scale(ec.endDate);
+                ec.startx = scale(ec.startDate)-10;
+                ec.endx = scale(ec.endDate)+10;
             });
             events.forEach(function (e) {
                 e.startx = scale(e.startDate);
@@ -76,7 +78,8 @@ function timeline(selector) {
             });
 
             // calculate y overlaps and "overlap depth"
-            eventClusters.sort(function(ec) { return ec.startDate; });
+
+            eventClusters.forEach(function(ec) { console.log(ec.title, ec.startDate); });
 
             var depthEnds = [];
             eventClusters.forEach(function (ec) {
@@ -87,26 +90,65 @@ function timeline(selector) {
                 ec.depth = d;
                 depthEnds[d] = ec.endx;
             });
-            var height = 30 * depthEnds.length;
+            var height = Y(depthEnds.length)+40;
 
-            console.log(selector);
-            var svg = d3.select(selector).append("svg")
+
+            svg = d3.select(selector).append("svg")
                 .attr("width", width)
                 .attr("height", height);
 
-            var tooltip = d3.select("body")
+            tooltip = d3.select("body")
                 .append("div")
                 .attr("class", "tooltip")
-                .style("visibility", "visible");
+                .style("visibility", "hidden");
 
-            svg.selectAll('.rect').data(eventClusters).enter().append('rect')
-                .attr('x', function(ec) { return ec.startx; })
-                .attr('y', function(ec) { return ec.depth*50 + 20; })
-                .attr('width', function(ec) { return ec.endx - ec.startx; })
-                .attr('height', 40)
-                .attr('class', 'cluster');
+            eventClusters.forEach(drawCluster);
 
             return timeline;
         }
+    }
+
+    function drawCluster(ec) {
+        var myg = svg.append('g').classed('cluster-g', true);
+
+        var clusterY = Y(ec.depth);
+
+        var rect = myg.append('rect')
+            .attr('x', ec.startx-10)
+            .attr('y', clusterY)
+            .attr('width',ec.endx - ec.startx+20)
+            .attr('height', 30)
+            .attr('class', 'cluster-rect');
+
+        var title = myg.append('text')
+            .attr('class', 'cluster-title')
+            .text(ec.title)
+            .attr('x', ec.startx-10)
+            .attr('y', clusterY-2);
+
+        myg.selectAll('.event').data(ec.pointEvents).enter().append('circle')
+            .attr('class', 'point-event')
+            .attr('cx', function(e) { return e.startx; })
+            .attr('cy', clusterY+15)
+            .attr('r', 5)
+            .on('mouseenter', function(e) {
+                tooltip.html('<h4>'+ e.title+'</h4><span>'+ e.startDate +'</span>')
+                    .style('visibility', 'visible')
+                    .style('left', e.startx+'px')
+                    .style('top', clusterY - 10+'px');
+            })
+            .on('mouseleave', function() {
+                tooltip.style('visibility', 'hidden');
+            });
+
+        myg.on('mouseenter', function() {
+            rect.classed('hovered', true);
+            title.classed('hovered', true);
+        })
+
+        myg.on('mouseleave', function() {
+            rect.classed('hovered', false);
+            title.classed('hovered', false);
+        })
     }
 }
