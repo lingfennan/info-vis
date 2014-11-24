@@ -3,12 +3,13 @@ function timeline(selector) {
     var svg = null,
         tooltip = null;
 
-    var events = [],
+    events = [],
         eventClusters = [],
         minDate = null,
         maxDate = null;
 
-    var Y = function(d) { return d*60 + 20; }
+    var UNIT_HEIGHT = 10;
+    var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     return timeline = {
 
@@ -60,44 +61,47 @@ function timeline(selector) {
         },
 
         draw: function () {
-
-            // find x scale, calculate x coordinates
-            var width = (maxDate.getFullYear() - minDate.getFullYear() + 2) * 30;
+            var width = (maxDate.getFullYear() - minDate.getFullYear() + 2) * 60; // 1 year = 30 px
             var yearMillis = 365 * 24 * 60 * 60 * 1000;
-            var scale = d3.time.scale()
-                .domain([new Date(minDate.getTime() - yearMillis), new Date(maxDate.getTime() + yearMillis)])
+            var scaleX = d3.time.scale()
+                .domain([new Date(minDate.getTime() - yearMillis), new Date(maxDate.getTime() + 10*yearMillis)])
                 .range([0,width]);
 
             eventClusters.forEach(function (ec) {
-                ec.startx = scale(ec.startDate)-10;
-                ec.endx = scale(ec.endDate)+10;
+                ec.startx = scaleX(ec.startDate) - 2*POINT_RADIUS;
+                ec.endx = scaleX(ec.endDate) + 2*POINT_RADIUS;
             });
             events.forEach(function (e) {
-                e.startx = scale(e.startDate);
-                e.endx = scale(e.endDate);
+                e.startx = scaleX(e.startDate);
+                e.endx = scaleX(e.endDate);
             });
 
             // calculate y overlaps and "overlap depth"
 
-            eventClusters.forEach(function(ec) { console.log(ec.title, ec.startDate); });
-
+            eventClusters.sort(function(ec1, ec2) { return ec1.startDate.getTime() - ec2.startDate.getTime(); });
             var depthEnds = [];
             eventClusters.forEach(function (ec) {
                 var d = 0;
                 for (d = 0; d < depthEnds.length; d++) {
-                    if (ec.startx > depthEnds[d]) { break; }
+                    var fullSpaceAvail = true;
+                    for(var i=0; i<=ec.thickness; i++) {
+                        if (ec.startx <= depthEnds[d+i]) { fullSpaceAvail = false; break; }
+                    }
+                    if(fullSpaceAvail) { break; }
                 }
                 ec.depth = d;
-                depthEnds[d] = ec.endx;
+                for(var i=0; i<=ec.thickness; i++) {
+                    depthEnds[d+i] = ec.endx;
+                }
             });
-            var height = Y(depthEnds.length)+40;
+            var height = (depthEnds.length + 2) * UNIT_HEIGHT;
 
 
             svg = d3.select(selector).append("svg")
                 .attr("width", width)
                 .attr("height", height);
 
-            tooltip = d3.select("body")
+            tooltip = d3.select(selector)
                 .append("div")
                 .attr("class", "tooltip")
                 .style("visibility", "hidden");
@@ -106,49 +110,58 @@ function timeline(selector) {
 
             return timeline;
         }
-    }
+    };
 
     function drawCluster(ec) {
         var myg = svg.append('g').classed('cluster-g', true);
 
-        var clusterY = Y(ec.depth);
+        var clusterY = ec.depth * UNIT_HEIGHT + (2*UNIT_HEIGHT);
 
         var rect = myg.append('rect')
-            .attr('x', ec.startx-10)
+            .attr('x', ec.startx)
             .attr('y', clusterY)
-            .attr('width',ec.endx - ec.startx+20)
-            .attr('height', 30)
+            .attr('width',ec.endx - ec.startx)
+            .attr('height', (ec.thickness-1) * UNIT_HEIGHT)
             .attr('class', 'cluster-rect');
 
         var title = myg.append('text')
             .attr('class', 'cluster-title')
-            .text(ec.title)
-            .attr('x', ec.startx-10)
-            .attr('y', clusterY-2);
+            .text(ec.title + " ("+ec.thickness+")")
+            .attr('x', ec.startx)
+            .attr('y', clusterY);
+
+        myg.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
+            .attr('class', 'extended-event')
+            .attr('x', function(e) { return e.startx; })
+            .attr('y', function(e) { return clusterY + ((e.getDepth(ec.title)+1) * UNIT_HEIGHT) - (UNIT_HEIGHT/2); })
+            .attr('width', function(e) { return e.endx - e.startx; })
+            .attr('height', 2*POINT_RADIUS);
 
         myg.selectAll('.event').data(ec.pointEvents).enter().append('circle')
             .attr('class', 'point-event')
             .attr('cx', function(e) { return e.startx; })
-            .attr('cy', clusterY+15)
-            .attr('r', 5)
-            .on('mouseenter', function(e) {
-                tooltip.html('<h4>'+ e.title+'</h4><span>'+ e.startDate +'</span>')
-                    .style('visibility', 'visible')
-                    .style('left', e.startx+'px')
-                    .style('top', clusterY - 10+'px');
-            })
-            .on('mouseleave', function() {
-                tooltip.style('visibility', 'hidden');
-            });
+            .attr('cy', function(e) { return clusterY + (e.getDepth(ec.title)+1) * UNIT_HEIGHT; })
+            .attr('r', POINT_RADIUS)
 
         myg.on('mouseenter', function() {
-            rect.classed('hovered', true);
+            myg.classed('hovered', true);
             title.classed('hovered', true);
         })
 
         myg.on('mouseleave', function() {
-            rect.classed('hovered', false);
+            myg.classed('hovered', false);
             title.classed('hovered', false);
         })
     }
 }
+
+//
+//.on('mouseenter', function(e) {
+//    tooltip.html('<h4>'+ e.title+'</h4><span>'+ e.startDate +'</span>')
+//        // .style('visibility', 'visible')
+//        .style('left', e.startx+'px')
+//        .style('top', clusterY - 10+'px');
+//})
+//    .on('mouseleave', function() {
+//        tooltip.style('visibility', 'hidden');
+//    });

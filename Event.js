@@ -1,7 +1,10 @@
 var Event = function() {
     this.title = '';
+
     this.startDate = new Date();
-    this.endDate = null;
+    this.endDate = new Date();
+    this.extendedEvent = false;
+
     this.eventChains = [];
     this.causedByEvents = [];
     this.causedByOrganizations = [];
@@ -14,6 +17,7 @@ var Event = function() {
 
     this.startx = 0;
     this.endx = 0;
+    this.depths = {};
 }
 
 Event.prototype.setTitle = function(t) {
@@ -24,6 +28,7 @@ Event.prototype.setStartDate = function(dateString) {
     var date = parseDate(dateString);
     if (date !== null) {
         this.startDate = date;
+        if(!this.extendedEvent) { this.endDate = date; }
     } else {
         console.log("error parsing start date '"+dateString+"'");
     }
@@ -33,6 +38,7 @@ Event.prototype.setEndDate = function(dateString) {
     var date = parseDate(dateString);
     if (date !== null) {
         this.endDate = date;
+        this.extendedEvent = true;
     } else {
         console.log("error parsing end date ", dateString);
     }
@@ -86,7 +92,7 @@ Event.prototype.setChains = function (chains) {
 }
 
 Event.prototype.isExtendedEvent = function() {
-    return this.endDate != null;
+    return this.extendedEvent;
 }
 
 Event.prototype.setReferences = function(refs) {
@@ -99,4 +105,17 @@ Event.prototype.setReferences = function(refs) {
         refs[i] = r.replace('çççç', ',');
     })
     this.references = refs;
+}
+
+Event.prototype.setDepth = function(d, clusterTitle) {
+    this.depths[clusterTitle] = d;
+}
+
+Event.prototype.getDepth = function(clusterTitle) {
+    if(this.depths[clusterTitle] === undefined) {
+        console.log("WARN no depth found for event '"+this.title+"' in cluster '"+clusterTitle+"'");
+        return 0;
+    } else {
+        return this.depths[clusterTitle];
+    }
 }

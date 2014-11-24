@@ -8,6 +8,18 @@ var EventCluster = function(title, events) {
     this.pointEvents = [];
     this.extendedEvents = [];
 
+    events.sort(function(e1, e2) { return e1.startDate.getTime() - e2.startDate.getTime(); });
+    var depthEnds = [];
+    events.forEach(function (e) {
+        var d = 0;
+        for (d = 0; d < depthEnds.length; d++) {
+            if (e.startDate.getTime() > depthEnds[d]) { break; }
+        }
+        e.setDepth(d, title);
+        depthEnds[d] = e.endDate.getTime();
+
+    });
+
     events.forEach(function(e) {
         if(e.isExtendedEvent()) {
             this.extendedEvents.push(e);
@@ -16,9 +28,10 @@ var EventCluster = function(title, events) {
         }
     }, this)
 
-
     // view related info
     this.startx = 0;
     this.endx = 0;
     this.depth = 1;
+    this.thickness = depthEnds.length+2;
+    console.log('thickness of cluster "'+this.title+'" = ', this.thickness);
 }

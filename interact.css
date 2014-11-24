@@ -1,5 +1,7 @@
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,400,300,600);
 body {
     margin: 0;
+    font-family: Open Sans, sans-serif;
 }
 
 h1 {
@@ -19,15 +21,35 @@ select {
 
 #timeline {
     overflow-y: scroll;
+    position: relative;
+}
+
+
+
+.tooltip {
+    width: auto;
+    position: absolute;
+    visibility: hidden;
+    color : black;
+    cursor:default;
+    background-color: #FFFFEE;
+    border: 1px solid;
+    padding: 4px;
+    shape-rendering: crispEdges;
+    pointer-events: none;
 }
 
 .cluster-g .cluster-rect {
     fill: #D8EBF2;
 }
 
-.cluster-g .cluster-rect.hovered {
+.cluster-g.hovered .cluster-rect {
     stroke-width: 3px;
     stroke: red;
+}
+
+.cluster-g.hovered .point-event {
+    fill: #777;
 }
 
 .cluster-g .cluster-title {
