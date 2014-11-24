@@ -2,6 +2,7 @@
 body {
     margin: 0;
     font-family: Open Sans, sans-serif;
+    font-weight: 300;
 }
 
 h1 {
@@ -20,7 +21,8 @@ select {
 }
 
 #timeline {
-    overflow-y: scroll;
+    overflow-x: scroll;
+    overflow-y: hidden;
     position: relative;
 }
 
@@ -49,7 +51,7 @@ select {
 }
 
 .cluster-g.hovered .point-event {
-    fill: #777;
+    /*fill: #777;*/
 }
 
 .cluster-g .cluster-title {

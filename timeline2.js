@@ -85,7 +85,7 @@ function timeline(selector) {
                 for (d = 0; d < depthEnds.length; d++) {
                     var fullSpaceAvail = true;
                     for(var i=0; i<=ec.thickness; i++) {
-                        if (ec.startx <= depthEnds[d+i]) { fullSpaceAvail = false; break; }
+                        if (ec.startx-10 <= depthEnds[d+i]) { fullSpaceAvail = false; break; }
                     }
                     if(fullSpaceAvail) { break; }
                 }
@@ -94,7 +94,7 @@ function timeline(selector) {
                     depthEnds[d+i] = ec.endx;
                 }
             });
-            var height = (depthEnds.length + 2) * UNIT_HEIGHT;
+            var height = (depthEnds.length+3) * UNIT_HEIGHT;
 
 
             svg = d3.select(selector).append("svg")
@@ -115,7 +115,7 @@ function timeline(selector) {
     function drawCluster(ec) {
         var myg = svg.append('g').classed('cluster-g', true);
 
-        var clusterY = ec.depth * UNIT_HEIGHT + (2*UNIT_HEIGHT);
+        var clusterY = ec.depth * UNIT_HEIGHT + (4*UNIT_HEIGHT);
 
         var rect = myg.append('rect')
             .attr('x', ec.startx)
@@ -126,9 +126,9 @@ function timeline(selector) {
 
         var title = myg.append('text')
             .attr('class', 'cluster-title')
-            .text(ec.title + " ("+ec.thickness+")")
+            .text(ec.title)
             .attr('x', ec.startx)
-            .attr('y', clusterY);
+            .attr('y', clusterY-5);
 
         myg.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
             .attr('class', 'extended-event')

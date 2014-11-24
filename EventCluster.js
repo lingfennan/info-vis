@@ -16,7 +16,7 @@ var EventCluster = function(title, events) {
             if (e.startDate.getTime() > depthEnds[d]) { break; }
         }
         e.setDepth(d, title);
-        depthEnds[d] = e.endDate.getTime();
+        depthEnds[d] = e.endDate.getTime()+2592000000;
 
     });
 
@@ -33,5 +33,4 @@ var EventCluster = function(title, events) {
     this.endx = 0;
     this.depth = 1;
     this.thickness = depthEnds.length+2;
-    console.log('thickness of cluster "'+this.title+'" = ', this.thickness);
 }
