@@ -3,7 +3,7 @@ function timeline(selector) {
     var svg = null,
         tooltip = null;
 
-    events = [],
+    var events = [],
         eventClusters = [],
         minDate = null,
         maxDate = null;
@@ -13,6 +13,20 @@ function timeline(selector) {
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
     var GAP_ANGLE = 20;
     var CONNECTOR_RADIUS = POINT_RADIUS+6;
+
+    var eventTypeClassMap = {
+        'diplomacy': 'diplomacy',
+        'revolution': 'revolution',
+        'political development': 'political',
+        'migration': 'migration',
+        'antisemetism':'antisemetism',
+        'org founded': 'org-founded',
+        'war': 'war',
+        'civil unrest': 'civil-unrest',
+        'peace process': 'peace-process',
+        'uncategorized': 'uncategorized',
+        'armstice': 'armstice'
+    };
 
     function createTooltip() {
         var format = d3.time.format("%e %b %Y");
@@ -77,7 +91,7 @@ function timeline(selector) {
     }
 
     function drawGridLines(scaleX, height) {
-        var intervals = scaleX.ticks();
+        var intervals = scaleX.ticks(d3.time.years, 5);
         var gridlines = svg.append('g').attr('class', 'gridlines');
         gridlines.selectAll('.gridline').data(intervals).enter().append('line')
             .attr('class', 'gridline')
@@ -112,97 +126,109 @@ function timeline(selector) {
                 .attr('y', ec.starty - 5);
         }
 
+
+        ec.g.on('mouseenter', function() {
+            ec.g.classed('hovered', true);
+            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 1); }
+        })
+        .on('mouseleave', function() {
+            ec.g.classed('hovered', false);
+            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 0); }
+        });
+
         ec.g.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
-            .attr('class', 'extended-event')
+            .attr('class', function(e) { return 'extended-event '+eventTypeClassMap[e.eventType]; })
             .attr('x', function(e) { return e.startx; })
             .attr('y', function(e) { return e.getStartY(ec); })
             .attr('rx', POINT_RADIUS)
             .attr('ry', POINT_RADIUS)
             .attr('width', function(e) { return e.endx - e.startx; })
             .attr('height', 2*POINT_RADIUS)
-            .on('mouseover', function(e) {
-                var dir = '';
-                var offset = [0, 0];
-                var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
-                if(sortedParents[sortedParents.length-1] == ec) {
-                    dir = 's'; offset = [10, 0];
-                } else if(sortedParents[0] == ec) {
-                    dir = 'n'; offset = [-10, 0];
-                } else {
-                    dir = 'e'; offset = [0, 10];
-                }
-                tooltip.offset(offset).show(e, dir);
-                if(e.parentClusters.length>1) {
-                    e.connector.transition().duration(200).style('opacity', 1);
-                }
-            })
-            .on('mouseout', function(e) {
-                tooltip.hide();
-                if(e.parentClusters.length>1) {
-                    e.connector.transition().duration(200).style('opacity', 0.1);
-                }
-            });
+            .on('mouseover', onEventMouseover)
+            .on('mouseout', onEventMouseout)
+            .on('click', onEventClicked);
 
         ec.g.selectAll('.event').data(ec.pointEvents).enter().append('circle')
-            .attr('class', 'point-event')
+            .attr('class', function(e) { return 'point-event '+eventTypeClassMap[e.eventType]; })
             .attr('cx', function(e) { return e.startx; })
             .attr('cy', function(e) { return e.getStartY(ec); })
             .attr('r', POINT_RADIUS)
-            .on('mouseover', function(e) {
-                var dir = '';
-                var offset = [0, 0];
-                var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
-                if(sortedParents[sortedParents.length-1] == ec) {
-                    dir = 's'; offset = [10, 0];
-                } else if(sortedParents[0] == ec) {
-                    dir = 'n'; offset = [-10, 0];
-                } else {
-                    dir = 'e'; offset = [0, 10];
-                }
-                tooltip.offset(offset).show(e, dir);
-                if(e.parentClusters.length>1) {
-                    e.connector.transition().duration(200).style('opacity', 1);
-                    e.parentClusters.forEach(function(pc) {
-                        if(pc!=ec) {
-                            pc.titleElement.transition().duration(200).style('opacity', 1);
-                        }
-                    });
-                }
-            })
-            .on('mouseout', function(e) {
-                tooltip.hide();
-                if(e.parentClusters.length>1) {
-                    e.connector.transition().duration(200).style('opacity', 0.1);
-                    e.parentClusters.forEach(function(pc) {
-                        if(pc!=ec) {
-                            pc.titleElement.transition().duration(200).style('opacity', 0);
-                        }
-                    });
+            .on('mouseover', onEventMouseover)
+            .on('mouseout', onEventMouseout)
+            .on('click', onEventClicked);
+
+        function onEventMouseover(e) {
+            var dir = '';
+            var offset = [0, 0];
+            var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
+            if(sortedParents[sortedParents.length-1] == ec) {
+                dir = 's'; offset = [10, 0];
+            } else if(sortedParents[0] == ec) {
+                dir = 'n'; offset = [-10, 0];
+            } else {
+                dir = 'e'; offset = [0, 10];
+            }
+            tooltip.offset(offset).show(e, dir);
+
+            e.connector.transition().duration(200).style('opacity', 1);
+            e.parentClusters.forEach(function(pc) {
+                if(pc!=ec) {
+                    pc.titleElement.transition().duration(200).style('opacity', 1);
                 }
             });
+        }
 
-        ec.g.on('mouseenter', function() {
-            ec.g.classed('hovered', true);
-            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 1); }
-        });
+        function onEventMouseout(e) {
+            tooltip.hide();
+            if(!e.clicked) {
+                var op = (e.parentClusters.length < 2) ? 0 : 0.1;
+                e.connector.transition().duration(200).style('opacity', op);
+                e.parentClusters.forEach(function(pc) {
+                    if(pc!=ec) {
+                        pc.titleElement.transition().duration(200).style('opacity', 0);
+                    }
+                });
+            }
+        }
 
-        ec.g.on('mouseleave', function() {
-            ec.g.classed('hovered', false);
-            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 0); }
-        })
-    }
-
-    function drawEventConnector(e) {
-        if(e.parentClusters.length < 2) {
-            e.connector = d3.select('.non-existent');
-        } else if(e.isExtendedEvent()) {
-            drawExtendedEventConnector(e);
-        } else {
-            drawPointEventConnector(e);
+        function onEventClicked(e) {
+            e.clicked = !e.clicked;
+            e.connector.classed('clicked', e.clicked);
         }
     }
 
-    function drawPointEventConnector(e) {
+    function drawEventConnector(e) {
+        var path = '';
+
+        if(e.parentClusters.length < 2) {
+            path = getSingleEventConnectorPath(e);
+        } else if(e.isExtendedEvent()) {
+            path = getExtendedEventConnectorPath(e);
+        } else {
+            path = getPointEventConnectorPath(e);
+        }
+
+        var clazz = 'connector' + (e.parentClusters.length < 2 ? ' single-cluster' : '');
+        e.connector = svg.append('path')
+            .attr('class', clazz)
+            .attr('d', path);
+    }
+
+    function getSingleEventConnectorPath(e) {
+        if(e.isExtendedEvent()) {
+            var eventY = e.getStartY(e.parentClusters[0]);
+
+            return arc(e.startx+POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 0, 180) + ' '+
+                hline(e.startx+POINT_RADIUS, e.endx - POINT_RADIUS, eventY+POINT_RADIUS-CONNECTOR_RADIUS) + ' ' +
+                arc(e.endx-POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 180, 360) + ' '+
+                hline(e.startx+POINT_RADIUS, e.endx - POINT_RADIUS, eventY+POINT_RADIUS+CONNECTOR_RADIUS);
+        } else {
+            return arc(e.startx, e.getStartY(e.parentClusters[0]), CONNECTOR_RADIUS, 0,180)+ ' ' +
+                arc(e.startx, e.getStartY(e.parentClusters[0]), CONNECTOR_RADIUS, 180, 360);
+        }
+    }
+
+    function getPointEventConnectorPath(e) {
 
         var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
         var numParents = sortedParents.length;
@@ -213,18 +239,16 @@ function timeline(selector) {
         for(var i=1; i<numParents-1; i++) {
             var pointY = e.getStartY(sortedParents[i]);
             path += arc(e.startx, pointY, CONNECTOR_RADIUS, GAP_ANGLE, 180-GAP_ANGLE) + ' ' +
-                arc(e.startx, pointY, CONNECTOR_RADIUS, 180-GAP_ANGLE, 360-GAP_ANGLE) + ' '+
+                arc(e.startx, pointY, CONNECTOR_RADIUS, 180+GAP_ANGLE, 360-GAP_ANGLE) + ' '+
                 connectorVlines(e.startx, e.getStartY(sortedParents[i]), e.getStartY(sortedParents[i+1]), CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
         }
 
         path += arc(e.startx, e.getStartY(sortedParents[numParents-1]), CONNECTOR_RADIUS, GAP_ANGLE, 360-GAP_ANGLE);
 
-        e.connector = svg.append('path')
-            .attr('class', 'multicluster-connector')
-            .attr('d', path);
+        return path;
     }
 
-    function drawExtendedEventConnector(e) {
+    function getExtendedEventConnectorPath(e) {
         var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
         var numParents = sortedParents.length;
 
@@ -261,9 +285,7 @@ function timeline(selector) {
             hline(e.startx+POINT_RADIUS, (e.startx+e.endx-W)/2, eventY+POINT_RADIUS-CONNECTOR_RADIUS) + ' ' +
             hline((e.startx+e.endx+W)/2, e.endx - POINT_RADIUS, eventY+POINT_RADIUS-CONNECTOR_RADIUS);
 
-        e.connector = svg.append('path')
-            .attr('class', 'multicluster-connector')
-            .attr('d', path);
+        return path;;
     }
 
     function arc(cx, cy, r, deg1, deg2) {
@@ -289,7 +311,7 @@ function timeline(selector) {
         var xticks = function (gap) {
             return d3.svg.axis().scale(scaleX).orient("bottom").ticks(d3.time.years, gap);
         };
-        var xAxis = xticks(1);
+        var xAxis = xticks(5);
         svg.append("g").attr("class", "xaxis")
             .attr("transform", "translate(0," + (height - TIME_AXIS_HEIGHT) + ")")
             .call(xAxis);

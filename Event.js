@@ -15,10 +15,13 @@ var Event = function() {
 
     this.parentClusters = [];
 
+    // view related info
     this.startx = 0;
     this.endx = 0;
     this.startys = {};
     this.depths = {};
+    this.clicked = false;
+    this.connector = null;
 }
 
 Event.prototype.setTitle = function(t) {

@@ -28,7 +28,8 @@ select {
 
 g.gridlines line {
     stroke-width: 1px;
-    stroke: blue;
+    stroke: #ccc;
+    stroke-dasharray: 5 5;
 }
 
 .tooltip {
@@ -55,8 +56,8 @@ g.gridlines line {
     stroke: #51C1ED;
 }
 
-.cluster-g.hovered .point-event {
-    /*fill: #777;*/
+.point-event, .extended-event {
+    cursor: pointer;
 }
 
 .cluster-g .cluster-title {
@@ -64,12 +65,29 @@ g.gridlines line {
     font-size: 14px;
 }
 
-.multicluster-connector {
+.connector {
     fill: none;
     stroke-width: 1px;
     stroke: black;
     opacity: 0.1;
 }
+.connector.single-cluster {
+    opacity: 0;
+}
+.connector.clicked {
+    stroke-width: 2px;
+    stroke: #555;
+}
+
+.civil-unrest { fill: #E66000; }
+.migration { fill:#969474; }
+.war { fill:#E82102; }
+.diplomacy { fill:#48D97F; }
+.antisemetism { fill:#F53D71; }
+.armstice { fill: #E600E2; }
+.uncategorized { fill: #777; }
+.org-founded { fill: #00B0B3; }
+.political { fill: #0011FF; }
 
 g.xaxis path,
 g.xaxis line {
