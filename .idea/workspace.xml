@@ -2,8 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="918e0c04-0443-47ca-8733-b57662a58b6c" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/interact.css" afterPath="$PROJECT_DIR$/interact.css" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/timeline.js" afterPath="$PROJECT_DIR$/timeline.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="info-vis.iws" />
@@ -419,7 +417,7 @@
       <updated>1416677290328</updated>
       <workItem from="1416677291933" duration="8033000" />
       <workItem from="1416688410902" duration="9199000" />
-      <workItem from="1416844269469" duration="25824000" />
+      <workItem from="1416844269469" duration="25903000" />
     </task>
     <task id="LOCAL-00001" summary="slight cleanup">
       <created>1416677334981</created>
@@ -449,11 +447,15 @@
       <created>1416900814031</created>
       <updated>1416900814031</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Merge branch 'master' of https://github.com/lingfennan/info-vis&#10;&#10;Conflicts:&#10;&#9;interact.css&#10;">
+      <created>1416901077977</created>
+      <updated>1416901077977</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="43056000" />
+    <option name="totallyTimeSpent" value="43135000" />
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -493,7 +495,7 @@
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3281768" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32928178" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32914045" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
@@ -529,7 +531,8 @@
     <MESSAGE value="improved layouting" />
     <MESSAGE value="add connectors between same event in different threads" />
     <MESSAGE value="add tooltips, make connectors respond to hover" />
-    <option name="LAST_COMMIT_MESSAGE" value="add tooltips, make connectors respond to hover" />
+    <MESSAGE value="Merge branch 'master' of https://github.com/lingfennan/info-vis&#10;&#10;Conflicts:&#10;&#9;interact.css&#10;" />
+    <option name="LAST_COMMIT_MESSAGE" value="Merge branch 'master' of https://github.com/lingfennan/info-vis&#10;&#10;Conflicts:&#10;&#9;interact.css&#10;" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
