@@ -17,6 +17,7 @@ var Event = function() {
 
     this.startx = 0;
     this.endx = 0;
+    this.startys = {};
     this.depths = {};
 }
 
@@ -107,15 +108,28 @@ Event.prototype.setReferences = function(refs) {
     this.references = refs;
 }
 
-Event.prototype.setDepth = function(d, clusterTitle) {
-    this.depths[clusterTitle] = d;
+Event.prototype.setDepth = function(d, ec) {
+    this.depths[ec.title] = d;
 }
 
-Event.prototype.getDepth = function(clusterTitle) {
-    if(this.depths[clusterTitle] === undefined) {
-        console.log("WARN no depth found for event '"+this.title+"' in cluster '"+clusterTitle+"'");
+Event.prototype.getDepth = function(ec) {
+    if(this.depths[ec.title] === undefined) {
+        console.log("WARN no depth found for event '"+this.title+"' in cluster '"+ec.title+"'");
         return 0;
     } else {
-        return this.depths[clusterTitle];
+        return this.depths[ec.title];
+    }
+}
+
+Event.prototype.setStartY = function(y, ec) {
+    this.startys[ec.title] = y;
+}
+
+Event.prototype.getStartY = function(ec) {
+    if(this.startys[ec.title] === undefined) {
+        console.log("WARN no start found for event '"+this.title+"' in cluster '"+ec.title+"'");
+        return 0;
+    } else {
+        return this.startys[ec.title];
     }
 }

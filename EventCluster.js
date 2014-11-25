@@ -15,9 +15,9 @@ var EventCluster = function(title, events) {
         for (d = 0; d < depthEnds.length; d++) {
             if (e.startDate.getTime() > depthEnds[d]) { break; }
         }
-        e.setDepth(d, title);
+        e.setDepth(d, this);
         depthEnds[d] = e.endDate.getTime()+2592000000;
-    });
+    }, this);
 
     events.forEach(function(e) {
         if(e.isExtendedEvent()) {

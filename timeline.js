@@ -14,10 +14,7 @@ function timeline(selector) {
     var GAP_ANGLE = 20;
     var CONNECTOR_RADIUS = POINT_RADIUS+6;
 
-    var pointEventY = function(e, ec) { return ec.starty + (e.getDepth(ec.title)+1) * UNIT_HEIGHT; }
-    var extendedEventY = function(e, ec) { return pointEventY(e,ec) - UNIT_HEIGHT/2; }
-
-    function createTooltip(format) {
+    function createTooltip() {
         var format = d3.time.format("%e %b %Y");
         return d3.tip()
             .attr('class', 'd3-tip')
@@ -63,6 +60,20 @@ function timeline(selector) {
             ec.starty = clusterY(ec);
         });
 
+        var pointEventY = function(e, ec) { return ec.starty + (e.getDepth(ec)+1) * UNIT_HEIGHT; }
+        var extendedEventY = function(e, ec) { return pointEventY(e,ec) - UNIT_HEIGHT/2; }
+
+        events.forEach(function(e) {
+            var f = null;
+            if(e.isExtendedEvent()) { f = extendedEventY; }
+            else { f = pointEventY; }
+
+            for(var i=0; i<e.parentClusters.length; i++) {
+                var ec = e.parentClusters[i];
+                e.setStartY( f(e,ec), ec );
+            }
+        });
+
         return depthEnds.length;
     }
 
@@ -102,7 +113,7 @@ function timeline(selector) {
         ec.g.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
             .attr('class', 'extended-event')
             .attr('x', function(e) { return e.startx; })
-            .attr('y', function(e) { return extendedEventY(e,ec); })
+            .attr('y', function(e) { return e.getStartY(ec); })
             .attr('rx', POINT_RADIUS)
             .attr('ry', POINT_RADIUS)
             .attr('width', function(e) { return e.endx - e.startx; })
@@ -133,7 +144,7 @@ function timeline(selector) {
         ec.g.selectAll('.event').data(ec.pointEvents).enter().append('circle')
             .attr('class', 'point-event')
             .attr('cx', function(e) { return e.startx; })
-            .attr('cy', function(e) { return pointEventY(e, ec); })
+            .attr('cy', function(e) { return e.getStartY(ec); })
             .attr('r', POINT_RADIUS)
             .on('mouseover', function(e) {
                 var dir = '';
@@ -184,17 +195,17 @@ function timeline(selector) {
         var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
         var numParents = sortedParents.length;
 
-        var path = arc(e.startx, pointEventY(e, sortedParents[0]), CONNECTOR_RADIUS, -180+GAP_ANGLE, 180-GAP_ANGLE)
-            + ' ' + connectorVlines(e.startx, pointEventY(e, sortedParents[0]), pointEventY(e, sortedParents[1]), CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
+        var path = arc(e.startx, e.getStartY(sortedParents[0]), CONNECTOR_RADIUS, -180+GAP_ANGLE, 180-GAP_ANGLE)
+            + ' ' + connectorVlines(e.startx, e.getStartY(sortedParents[0]), e.getStartY(sortedParents[1]), CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
 
         for(var i=1; i<numParents-1; i++) {
-            var pointY = pointEventY(e,sortedParents[i]);
+            var pointY = e.getStartY(sortedParents[i]);
             path += arc(e.startx, pointY, CONNECTOR_RADIUS, GAP_ANGLE, 180-GAP_ANGLE) + ' ' +
                 arc(e.startx, pointY, CONNECTOR_RADIUS, 180-GAP_ANGLE, 360-GAP_ANGLE) + ' '+
-                connectorVlines(e.startx, pointEventY(e, sortedParents[i]), pointEventY(e, sortedParents[i+1]), CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
+                connectorVlines(e.startx, e.getStartY(sortedParents[i]), e.getStartY(sortedParents[i+1]), CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
         }
 
-        path += arc(e.startx, pointEventY(e,sortedParents[numParents-1]), CONNECTOR_RADIUS, GAP_ANGLE, 360-GAP_ANGLE);
+        path += arc(e.startx, e.getStartY(sortedParents[numParents-1]), CONNECTOR_RADIUS, GAP_ANGLE, 360-GAP_ANGLE);
 
         e.connector = svg.append('path')
             .attr('class', 'multicluster-connector')
@@ -207,18 +218,18 @@ function timeline(selector) {
 
         var W = 2 * CONNECTOR_RADIUS * Math.sin(GAP_ANGLE * Math.PI/180);
 
-        var eventY = extendedEventY(e,sortedParents[0]);
+        var eventY = e.getStartY(sortedParents[0]);
         var path =
             arc(e.startx+POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 0, 180) + ' '+
             hline(e.startx+POINT_RADIUS, (e.startx+e.endx-W)/2, eventY+POINT_RADIUS+CONNECTOR_RADIUS) + ' ' +
             hline((e.startx+e.endx+W)/2, e.endx - POINT_RADIUS, eventY+POINT_RADIUS+CONNECTOR_RADIUS) + ' ' +
-            arc(e.endx-POINT_RADIUS, extendedEventY(e, sortedParents[0])+POINT_RADIUS, CONNECTOR_RADIUS, 180, 360) + ' '+
+            arc(e.endx-POINT_RADIUS, e.getStartY(sortedParents[0])+POINT_RADIUS, CONNECTOR_RADIUS, 180, 360) + ' '+
             hline(e.startx+POINT_RADIUS, e.endx - POINT_RADIUS, eventY+POINT_RADIUS-CONNECTOR_RADIUS) + ' ';
 
-        path += connectorVlines((e.startx+ e.endx)/2, eventY+POINT_RADIUS, extendedEventY(e, sortedParents[1])+POINT_RADIUS, CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
+        path += connectorVlines((e.startx+ e.endx)/2, eventY+POINT_RADIUS, e.getStartY(sortedParents[1])+POINT_RADIUS, CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
 
         for(var i=1; i<numParents-1; i++) {
-            var eventY = extendedEventY(e,sortedParents[i]);
+            var eventY = e.getStartY(sortedParents[i]);
             path +=
                 arc(e.startx+POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 0, 180) + ' '+
                 hline(e.startx+POINT_RADIUS, (e.startx+e.endx-W)/2, eventY+POINT_RADIUS+CONNECTOR_RADIUS) + ' ' +
@@ -227,10 +238,10 @@ function timeline(selector) {
                 hline(e.startx+POINT_RADIUS, (e.startx+e.endx-W)/2, eventY+POINT_RADIUS-CONNECTOR_RADIUS) + ' ' +
                 hline((e.startx+e.endx-W)/2, e.endx - POINT_RADIUS, eventY+POINT_RADIUS-CONNECTOR_RADIUS) + ' ';
 
-            path += connectorVlines((e.startx+ e.endx)/2, eventY+POINT_RADIUS, extendedEventY(e, sortedParents[i+1])+POINT_RADIUS, CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
+            path += connectorVlines((e.startx+ e.endx)/2, eventY+POINT_RADIUS, e.getStartY(sortedParents[i+1])+POINT_RADIUS, CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
         }
 
-        eventY = extendedEventY(e,sortedParents[numParents-1]);
+        eventY = e.getStartY(sortedParents[numParents-1]);
         path +=
             arc(e.startx+POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 0, 180) + ' '+
             hline(e.startx+POINT_RADIUS, e.endx-POINT_RADIUS, eventY+POINT_RADIUS+CONNECTOR_RADIUS) + ' ' +
@@ -275,8 +286,6 @@ function timeline(selector) {
     function hline(x1, x2, y) {
         return 'M '+x1+' '+y+' L '+x2+' '+y;
     }
-
-
 
     return timeline = {
 
