@@ -26,21 +26,6 @@ select {
     position: relative;
 }
 
-
-
-.tooltip {
-    width: auto;
-    position: absolute;
-    visibility: hidden;
-    color : black;
-    cursor:default;
-    background-color: #FFFFEE;
-    border: 1px solid;
-    padding: 4px;
-    shape-rendering: crispEdges;
-    pointer-events: none;
-}
-
 .cluster-g .cluster-rect {
     fill: #f7f7f7;
     stroke: #B2DCED;

@@ -3,7 +3,7 @@ function timeline(selector) {
     var svg = null,
         tooltip = null;
 
-    events = [],
+    var events = [],
         eventClusters = [],
         minDate = null,
         maxDate = null;
@@ -106,10 +106,20 @@ function timeline(selector) {
                 .attr("width", width)
                 .attr("height", height);
 
-            tooltip = d3.select(selector)
-                .append("div")
-                .attr("class", "tooltip")
-                .style("visibility", "hidden");
+            var format = d3.time.format("%d-%b-%Y");
+
+            tooltip = d3.tip()
+                .attr('class', 'd3-tip')
+                .html(function(e) {
+                    var datestring = format(e.startDate);
+                    if(e.isExtendedEvent()) {
+                        datestring += '-' + format(e.endDate);
+                    }
+                    return e.title + '<br><span class="dates">'+datestring+'</span>';
+                });
+
+            svg.call(tooltip);
+
 
             eventClusters.forEach(drawCluster);
             events
@@ -149,13 +159,57 @@ function timeline(selector) {
             .attr('rx', POINT_RADIUS)
             .attr('ry', POINT_RADIUS)
             .attr('width', function(e) { return e.endx - e.startx; })
-            .attr('height', 2*POINT_RADIUS);
+            .attr('height', 2*POINT_RADIUS)
+            .on('mouseover', function(e) {
+                var dir = '';
+                var offset = [0, 0];
+                var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
+                if(sortedParents[sortedParents.length-1] == ec) {
+                    dir = 's'; offset = [10, 0];
+                } else if(sortedParents[0] == ec) {
+                    dir = 'n'; offset = [-10, 0];
+                } else {
+                    dir = 'e'; offset = [0, 10];
+                }
+                tooltip.offset(offset).show(e, dir);
+                if(e.parentClusters.length>1) {
+                    e.connector.transition().duration(200).style('opacity', 1);
+                }
+            })
+            .on('mouseout', function(e) {
+                tooltip.hide();
+                if(e.parentClusters.length>1) {
+                    e.connector.transition().duration(200).style('opacity', 0.1);
+                }
+            })
 
         ec.g.selectAll('.event').data(ec.pointEvents).enter().append('circle')
             .attr('class', 'point-event')
             .attr('cx', function(e) { return e.startx; })
             .attr('cy', function(e) { return pointEventY(e, ec); })
             .attr('r', POINT_RADIUS)
+            .on('mouseover', function(e) {
+                var dir = '';
+                var offset = [0, 0];
+                var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
+                if(sortedParents[sortedParents.length-1] == ec) {
+                    dir = 's'; offset = [10, 0];
+                } else if(sortedParents[0] == ec) {
+                    dir = 'n'; offset = [-10, 0];
+                } else {
+                    dir = 'e'; offset = [0, 10];
+                }
+                tooltip.offset(offset).show(e, dir);
+                if(e.parentClusters.length>1) {
+                    e.connector.transition().duration(200).style('opacity', 1);
+                }
+            })
+            .on('mouseout', function(e) {
+                tooltip.hide();
+                if(e.parentClusters.length>1) {
+                    e.connector.transition().duration(200).style('opacity', 0.1);
+                }
+            })
 
         ec.g.on('mouseenter', function() {
             ec.g.classed('hovered', true);
@@ -194,8 +248,6 @@ function timeline(selector) {
         var R = POINT_RADIUS+4;
         var gapwidth = 20;
 
-        e.connG = svg.append('g');
-
         var path = arc(e.startx, pointEventY(e, sortedParents[0]), R, -180+gapwidth, 180-gapwidth)
         + ' ' + lines(e.startx, pointEventY(e, sortedParents[0]), pointEventY(e, sortedParents[1]), R, gapwidth) + ' ';
 
@@ -208,7 +260,7 @@ function timeline(selector) {
 
         path += arc(e.startx, pointEventY(e,sortedParents[numParents-1]), R, gapwidth, 360-gapwidth);
 
-        e.connG.append('path')
+        e.connector = svg.append('path')
             .attr('class', 'multicluster-connector')
             .attr('d', path);
     }
