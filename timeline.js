@@ -11,12 +11,17 @@ function timeline(selector) {
     var UNIT_HEIGHT = 10;
     var TIMELINE_HEIGHT = 25;
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
+    var clusterY = function(ec) { return ec.depth * UNIT_HEIGHT + (4*UNIT_HEIGHT); }
+    var pointEventY = function(e, ec) { return clusterY(ec) + (e.getDepth(ec.title)+1) * UNIT_HEIGHT; }
+    var extendedEventY = function(e, ec) { return pointEventY(e,ec) - UNIT_HEIGHT/2; }
 
     return timeline = {
 
         events: function (items, getClusterKeys) {
 
             events = items;
+
+            console.log(d3.set(items.map(function(e) { return e.eventType; })).values())
 
             var clusterMap = {};
             var pushToClustermap = function (name, event) { // utility fn, used in next loop
@@ -117,6 +122,13 @@ function timeline(selector) {
                 .attr('y2', height - TIMELINE_HEIGHT);
                 
             eventClusters.forEach(drawCluster);
+            events
+                .filter(function(e) { return !e.isExtendedEvent() && e.parentClusters.length > 1; })
+                .forEach(drawPointEventConnector);
+
+            events
+                .filter(function(e) { return !e.isExtendedEvent() && e.parentClusters.length > 1; })
+                .forEach(drawExtendedEventConnector);
 
             // draw timeline, grid and text
             var xticks = function (gap) {
@@ -134,45 +146,96 @@ function timeline(selector) {
     };
 
     function drawCluster(ec) {
-        var myg = svg.append('g').classed('cluster-g', true);
+        ec.g = svg.append('g').classed('cluster-g', true);
 
-        var clusterY = ec.depth * UNIT_HEIGHT + (4*UNIT_HEIGHT);
-
-        var rect = myg.append('rect')
+        var rect = ec.g.append('rect')
             .attr('x', ec.startx)
-            .attr('y', clusterY)
+            .attr('y', clusterY(ec))
+            .attr('rx', 5)
+            .attr('ry', 5)
             .attr('width',ec.endx - ec.startx)
             .attr('height', (ec.thickness-1) * UNIT_HEIGHT)
             .attr('class', 'cluster-rect');
 
-        var title = myg.append('text')
+        var title = ec.g.append('text')
             .attr('class', 'cluster-title')
             .text(ec.title)
             .attr('x', ec.startx)
-            .attr('y', clusterY-5);
+            .attr('y', clusterY(ec)-5);
 
-        myg.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
+        ec.g.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
             .attr('class', 'extended-event')
             .attr('x', function(e) { return e.startx; })
-            .attr('y', function(e) { return clusterY + ((e.getDepth(ec.title)+1) * UNIT_HEIGHT) - (UNIT_HEIGHT/2); })
+            .attr('y', function(e) { return extendedEventY(e,ec); })
+            .attr('rx', POINT_RADIUS)
+            .attr('ry', POINT_RADIUS)
             .attr('width', function(e) { return e.endx - e.startx; })
             .attr('height', 2*POINT_RADIUS);
 
-        myg.selectAll('.event').data(ec.pointEvents).enter().append('circle')
+        ec.g.selectAll('.event').data(ec.pointEvents).enter().append('circle')
             .attr('class', 'point-event')
             .attr('cx', function(e) { return e.startx; })
-            .attr('cy', function(e) { return clusterY + (e.getDepth(ec.title)+1) * UNIT_HEIGHT; })
+            .attr('cy', function(e) { return pointEventY(e, ec); })
             .attr('r', POINT_RADIUS)
 
-        myg.on('mouseenter', function() {
-            myg.classed('hovered', true);
-            title.classed('hovered', true);
+        ec.g.on('mouseenter', function() {
+            ec.g.classed('hovered', true);
+            title.transition().duration(200).style('opacity', 1);
         })
 
-        myg.on('mouseleave', function() {
-            myg.classed('hovered', false);
-            title.classed('hovered', false);
+        ec.g.on('mouseleave', function() {
+            ec.g.classed('hovered', false);
+            title.transition().duration(200).style('opacity', 0);
         })
+    }
+
+    function arc(cx, cy, r, deg1, deg2) {
+        var x1 = cx - r * Math.sin(deg1 * Math.PI/180);
+        var y1 = cy - r * Math.cos(deg1 * Math.PI/180);
+        var x2 = cx - r * Math.sin(deg2 * Math.PI/180);
+        var y2 = cy - r * Math.cos(deg2 * Math.PI/180);
+
+        var largeArc = (Math.abs(deg1-deg2) > 180) ? 1 : 0;
+        return "M "+x1+' '+y1+' A '+r+' '+r+' 0 '+largeArc+' 0 '+x2+' '+y2;
+    }
+
+    function lines(cx, cy1, cy2, r, deg) {
+        var x1 = cx - r * Math.sin(deg * Math.PI/180);
+        var x2 = cx + r * Math.sin(deg * Math.PI/180);
+        var y1 = cy1 + r * Math.cos(deg * Math.PI/180);
+        var y2 = cy2 - r * Math.cos(deg * Math.PI/180);
+
+        return 'M '+x1+' '+y1+' L '+x1+' '+y2+' M '+x2+' '+y1+' L '+x2+' '+y2;
+    }
+
+    function drawPointEventConnector(e) {
+        var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
+        var numParents = sortedParents.length;
+
+        var R = POINT_RADIUS+4;
+        var gapwidth = 20;
+
+        e.connG = svg.append('g');
+
+        var path = arc(e.startx, pointEventY(e, sortedParents[0]), R, -180+gapwidth, 180-gapwidth)
+        + ' ' + lines(e.startx, pointEventY(e, sortedParents[0]), pointEventY(e, sortedParents[1]), R, gapwidth) + ' ';
+
+        for(var i=1; i<numParents-1; i++) {
+            var pointY = pointEventY(e,sortedParents[i]);
+            path += arc(e.startx, pointY, POINT_RADIUS + 2, gapwidth, 180-gapwidth) + ' ' +
+                arc(e.startx, pointY, R, 180-gapwidth, 360-gapwidth) + ' '+
+                lines(e.startx, pointEventY(e, sortedParents[i]), pointEventY(e, sortedParents[i+1]), R, gapwidth) + ' ';
+        }
+
+        path += arc(e.startx, pointEventY(e,sortedParents[numParents-1]), R, gapwidth, 360-gapwidth);
+
+        e.connG.append('path')
+            .attr('class', 'multicluster-connector')
+            .attr('d', path);
+    }
+
+    function drawExtendedEventConnector(e) {
+        // todo
     }
 }
 
