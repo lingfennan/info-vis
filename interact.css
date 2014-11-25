@@ -26,7 +26,10 @@ select {
     position: relative;
 }
 
-
+g.gridlines line {
+    stroke-width: 1px;
+    stroke: blue;
+}
 
 .tooltip {
     width: auto;
@@ -60,6 +63,13 @@ select {
 
 .cluster-g .cluster-title.hovered {
     visibility: visible;
+}
+
+g.xaxis path,
+g.xaxis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
 }
 
 button {

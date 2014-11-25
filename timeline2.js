@@ -9,6 +9,7 @@ function timeline(selector) {
         maxDate = null;
 
     var UNIT_HEIGHT = 10;
+    var TIMELINE_HEIGHT = 25;
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     return timeline = {
@@ -66,6 +67,8 @@ function timeline(selector) {
             var scaleX = d3.time.scale()
                 .domain([new Date(minDate.getTime() - yearMillis), new Date(maxDate.getTime() + 10*yearMillis)])
                 .range([0,width]);
+                
+            var intervals = scaleX.ticks()
 
             eventClusters.forEach(function (ec) {
                 ec.startx = scaleX(ec.startDate) - 2*POINT_RADIUS;
@@ -94,7 +97,7 @@ function timeline(selector) {
                     depthEnds[d+i] = ec.endx;
                 }
             });
-            var height = (depthEnds.length+3) * UNIT_HEIGHT;
+            var height = (depthEnds.length+3) * UNIT_HEIGHT + TIMELINE_HEIGHT;
 
 
             svg = d3.select(selector).append("svg")
@@ -106,8 +109,26 @@ function timeline(selector) {
                 .attr("class", "tooltip")
                 .style("visibility", "hidden");
 
+            var gridlines = svg.append('g').attr('class', 'gridlines');
+            gridlines.selectAll('.gridline').data(intervals).enter().append('line')
+                .attr('x1', function(i) { return scaleX(i); })
+                .attr('y1', 0)
+                .attr('x2', function(i) { return scaleX(i); })
+                .attr('y2', height - TIMELINE_HEIGHT);
+                
             eventClusters.forEach(drawCluster);
 
+            // draw timeline, grid and text
+            var xticks = function (gap) {
+                return d3.svg.axis().scale(scaleX).orient("bottom").ticks(d3.time.years, gap);
+            }
+            
+            var xAxis = xticks(1);
+            
+            svg.append("g").attr("class", "xaxis")
+            .attr("transform", "translate(0," + (height - TIMELINE_HEIGHT) + ")")
+            .call(xAxis);
+            
             return timeline;
         }
     };
