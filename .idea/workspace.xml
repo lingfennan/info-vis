@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="918e0c04-0443-47ca-8733-b57662a58b6c" name="Default" comment="update workspace">
+    <list default="true" id="918e0c04-0443-47ca-8733-b57662a58b6c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/EventCluster.js" afterPath="$PROJECT_DIR$/EventCluster.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/data.csv" afterPath="$PROJECT_DIR$/data.csv" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/lib/d3.tip.js" afterPath="$PROJECT_DIR$/lib/d3.tip.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/timeline.js" afterPath="$PROJECT_DIR$/timeline.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -31,12 +31,31 @@
       <file leaf-file-name="timeline.js" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/timeline.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.22553699" vertical-offset="996" max-vertical-offset="4815">
-              <caret line="113" column="55" selection-start-line="113" selection-start-column="55" selection-end-line="113" selection-end-column="55" />
+            <state vertical-scroll-proportion="0.43785632" vertical-offset="1371" max-vertical-offset="2415">
+              <caret line="177" column="90" selection-start-line="177" selection-start-column="90" selection-end-line="177" selection-end-column="90" />
               <folding>
                 <element signature="n#!!block;n#calcCoordsAndDepthsAndGetMaxDepth#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#drawGridLines#0;n#!!block;n#timeline#0" expanded="false" />
                 <element signature="n#!!block;n#drawEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#drawPointEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#drawExtendedEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#arc#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#connectorVlines#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#drawTimeAxis#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="n#!!block;n#hline#0;n#!!block;n#timeline#0" expanded="false" />
+                <element signature="e#12735#14792#0" expanded="false" />
+                <element signature="e#14821#15701#0" expanded="false" />
               </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="d3.tip.js" pinned="false" current="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/lib/d3.tip.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0" vertical-offset="293" max-vertical-offset="4755">
+              <caret line="62" column="12" selection-start-line="62" selection-start-column="12" selection-end-line="62" selection-end-column="12" />
+              <folding />
             </state>
           </provider>
         </entry>
@@ -58,15 +77,15 @@
         <option value="$PROJECT_DIR$/EventCluster" />
         <option value="$PROJECT_DIR$/timeline.css" />
         <option value="$PROJECT_DIR$/interact.js" />
-        <option value="$PROJECT_DIR$/Event.js" />
         <option value="$PROJECT_DIR$/timeline2.js" />
         <option value="$PROJECT_DIR$/data.bak.csv" />
         <option value="$PROJECT_DIR$/index.html" />
         <option value="$PROJECT_DIR$/lib/d3.tip.css" />
-        <option value="$PROJECT_DIR$/lib/d3.tip.js" />
         <option value="$PROJECT_DIR$/interact.css" />
-        <option value="$PROJECT_DIR$/EventCluster.js" />
         <option value="$PROJECT_DIR$/data.csv" />
+        <option value="$PROJECT_DIR$/Event.js" />
+        <option value="$PROJECT_DIR$/lib/d3.tip.js" />
+        <option value="$PROJECT_DIR$/EventCluster.js" />
         <option value="$PROJECT_DIR$/timeline.js" />
       </list>
     </option>
@@ -404,7 +423,7 @@
       <workItem from="1416677291933" duration="8033000" />
       <workItem from="1416688410902" duration="9199000" />
       <workItem from="1416844269469" duration="25927000" />
-      <workItem from="1416935811745" duration="5210000" />
+      <workItem from="1416935811745" duration="9060000" />
     </task>
     <task id="LOCAL-00001" summary="slight cleanup">
       <created>1416677334981</created>
@@ -442,11 +461,19 @@
       <created>1416901117734</created>
       <updated>1416901117734</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="made connectors for extended events, refactored the code a little bit">
+      <created>1416943196827</created>
+      <updated>1416943196827</updated>
+    </task>
+    <task id="LOCAL-00011" summary="a little more refactoring">
+      <created>1416945905828</created>
+      <updated>1416945905828</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="48369000" />
+    <option name="totallyTimeSpent" value="52219000" />
   </component>
   <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
@@ -481,12 +508,13 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="IDEtalk Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32928178" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="IDEtalk" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3281768" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32928178" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32914045" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
-      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24969475" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
@@ -496,7 +524,6 @@
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3281768" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32928178" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
@@ -524,7 +551,9 @@
     <MESSAGE value="add tooltips, make connectors respond to hover" />
     <MESSAGE value="Merge branch 'master' of https://github.com/lingfennan/info-vis&#10;&#10;Conflicts:&#10;&#9;interact.css&#10;" />
     <MESSAGE value="update workspace" />
-    <option name="LAST_COMMIT_MESSAGE" value="update workspace" />
+    <MESSAGE value="made connectors for extended events, refactored the code a little bit" />
+    <MESSAGE value="a little more refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="a little more refactoring" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
@@ -572,7 +601,16 @@
           <caret line="109" column="21" selection-start-line="109" selection-start-column="21" selection-end-line="109" selection-end-column="21" />
           <folding>
             <element signature="n#!!block;n#calcCoordsAndDepthsAndGetMaxDepth#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawGridLines#0;n#!!block;n#timeline#0" expanded="false" />
             <element signature="n#!!block;n#drawEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawPointEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawExtendedEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#arc#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#connectorVlines#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawTimeAxis#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#hline#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="e#12735#14792#0" expanded="false" />
+            <element signature="e#14821#15701#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -627,26 +665,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Event.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.25655645" vertical-offset="0" max-vertical-offset="1905">
-          <caret line="15" column="4" selection-start-line="15" selection-start-column="4" selection-end-line="15" selection-end-column="4" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/index.html">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.2813599" vertical-offset="0" max-vertical-offset="853">
           <caret line="16" column="21" selection-start-line="16" selection-start-column="21" selection-end-line="16" selection-end-column="21" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/lib/d3.tip.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4355758" vertical-offset="308" max-vertical-offset="4635">
-          <caret line="49" column="18" selection-start-line="49" selection-start-column="18" selection-end-line="49" selection-end-column="18" />
           <folding />
         </state>
       </provider>
@@ -667,14 +689,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/EventCluster.js">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.17103763" vertical-offset="0" max-vertical-offset="877">
-          <caret line="10" column="13" selection-start-line="10" selection-start-column="13" selection-end-line="10" selection-end-column="13" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/data.csv">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.3329223" vertical-offset="885" max-vertical-offset="2040">
@@ -686,13 +700,46 @@
         <state />
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Event.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.47121033" vertical-offset="1264" max-vertical-offset="2115">
+          <caret line="111" column="30" selection-start-line="111" selection-start-column="30" selection-end-line="111" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/lib/d3.tip.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="293" max-vertical-offset="4755">
+          <caret line="62" column="12" selection-start-line="62" selection-start-column="12" selection-end-line="62" selection-end-column="12" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/EventCluster.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.6328392" vertical-offset="0" max-vertical-offset="877">
+          <caret line="37" column="21" selection-start-line="37" selection-start-column="9" selection-end-line="37" selection-end-column="21" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/timeline.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.22553699" vertical-offset="996" max-vertical-offset="4815">
-          <caret line="113" column="55" selection-start-line="113" selection-start-column="55" selection-end-line="113" selection-end-column="55" />
+        <state vertical-scroll-proportion="0.43785632" vertical-offset="1371" max-vertical-offset="2415">
+          <caret line="177" column="90" selection-start-line="177" selection-start-column="90" selection-end-line="177" selection-end-column="90" />
           <folding>
             <element signature="n#!!block;n#calcCoordsAndDepthsAndGetMaxDepth#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawGridLines#0;n#!!block;n#timeline#0" expanded="false" />
             <element signature="n#!!block;n#drawEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawPointEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawExtendedEventConnector#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#arc#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#connectorVlines#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#drawTimeAxis#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="n#!!block;n#hline#0;n#!!block;n#timeline#0" expanded="false" />
+            <element signature="e#12735#14792#0" expanded="false" />
+            <element signature="e#14821#15701#0" expanded="false" />
           </folding>
         </state>
       </provider>

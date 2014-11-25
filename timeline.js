@@ -3,7 +3,7 @@ function timeline(selector) {
     var svg = null,
         tooltip = null;
 
-    var events = [],
+    events = [],
         eventClusters = [],
         minDate = null,
         maxDate = null;
@@ -28,7 +28,7 @@ function timeline(selector) {
     }
 
     function calcCoordsAndDepthsAndGetMaxDepth(scaleX) {
-        var clusterY = function(ec) { return ec.depth * UNIT_HEIGHT + (4*UNIT_HEIGHT); }
+        var clusterY = function(ec) { return ec.depth * UNIT_HEIGHT + (4*UNIT_HEIGHT); };
 
         eventClusters.forEach(function (ec) {
             ec.startx = scaleX(ec.startDate) - 2 * POINT_RADIUS;
@@ -42,8 +42,7 @@ function timeline(selector) {
 
         var depthEnds = [];
         eventClusters.forEach(function (ec) {
-            var d = 0;
-            for (d = 0; d < depthEnds.length; d++) {
+            for (var d = 0; d < depthEnds.length; d++) {
                 var fullSpaceAvail = true;
                 for(var i=0; i<=ec.thickness; i++) {
                     if (ec.startx-10 <= depthEnds[d+i]) { fullSpaceAvail = false; break; }
@@ -51,8 +50,8 @@ function timeline(selector) {
                 if(fullSpaceAvail) { break; }
             }
             ec.depth = d;
-            for(var i=0; i<=ec.thickness; i++) {
-                depthEnds[d+i] = ec.endx;
+            for(var j=0; j<=ec.thickness; j++) {
+                depthEnds[d+j] = ec.endx;
             }
         });
 
@@ -60,8 +59,8 @@ function timeline(selector) {
             ec.starty = clusterY(ec);
         });
 
-        var pointEventY = function(e, ec) { return ec.starty + (e.getDepth(ec)+1) * UNIT_HEIGHT; }
-        var extendedEventY = function(e, ec) { return pointEventY(e,ec) - UNIT_HEIGHT/2; }
+        var pointEventY = function(e, ec) { return ec.starty + (e.getDepth(ec)+1) * UNIT_HEIGHT; };
+        var extendedEventY = function(e, ec) { return pointEventY(e,ec) - UNIT_HEIGHT/2; };
 
         events.forEach(function(e) {
             var f = null;
@@ -78,7 +77,7 @@ function timeline(selector) {
     }
 
     function drawGridLines(scaleX, height) {
-        var intervals = scaleX.ticks()
+        var intervals = scaleX.ticks();
         var gridlines = svg.append('g').attr('class', 'gridlines');
         gridlines.selectAll('.gridline').data(intervals).enter().append('line')
             .attr('class', 'gridline')
@@ -95,20 +94,23 @@ function timeline(selector) {
     function drawCluster(ec) {
         ec.g = svg.append('g').classed('cluster-g', true);
 
-        var rect = ec.g.append('rect')
-            .attr('x', ec.startx)
-            .attr('y', ec.starty)
-            .attr('rx', 5)
-            .attr('ry', 5)
-            .attr('width',ec.endx - ec.startx)
-            .attr('height', (ec.thickness-1) * UNIT_HEIGHT)
-            .attr('class', 'cluster-rect');
+        if (ec.title != '') {
 
-        var title = ec.g.append('text')
-            .attr('class', 'cluster-title')
-            .text(ec.title)
-            .attr('x', ec.startx)
-            .attr('y', ec.starty-5);
+            var rect = ec.g.append('rect')
+                .attr('x', ec.startx)
+                .attr('y', ec.starty)
+                .attr('rx', 5)
+                .attr('ry', 5)
+                .attr('width', ec.endx - ec.startx)
+                .attr('height', (ec.thickness - 1) * UNIT_HEIGHT)
+                .attr('class', 'cluster-rect');
+
+            ec.titleElement = ec.g.append('text')
+                .attr('class', 'cluster-title')
+                .text(ec.title)
+                .attr('x', ec.startx)
+                .attr('y', ec.starty - 5);
+        }
 
         ec.g.selectAll('.event').data(ec.extendedEvents).enter().append('rect')
             .attr('class', 'extended-event')
@@ -139,7 +141,7 @@ function timeline(selector) {
                 if(e.parentClusters.length>1) {
                     e.connector.transition().duration(200).style('opacity', 0.1);
                 }
-            })
+            });
 
         ec.g.selectAll('.event').data(ec.pointEvents).enter().append('circle')
             .attr('class', 'point-event')
@@ -160,23 +162,33 @@ function timeline(selector) {
                 tooltip.offset(offset).show(e, dir);
                 if(e.parentClusters.length>1) {
                     e.connector.transition().duration(200).style('opacity', 1);
+                    e.parentClusters.forEach(function(pc) {
+                        if(pc!=ec) {
+                            pc.titleElement.transition().duration(200).style('opacity', 1);
+                        }
+                    });
                 }
             })
             .on('mouseout', function(e) {
                 tooltip.hide();
                 if(e.parentClusters.length>1) {
                     e.connector.transition().duration(200).style('opacity', 0.1);
+                    e.parentClusters.forEach(function(pc) {
+                        if(pc!=ec) {
+                            pc.titleElement.transition().duration(200).style('opacity', 0);
+                        }
+                    });
                 }
-            })
+            });
 
         ec.g.on('mouseenter', function() {
             ec.g.classed('hovered', true);
-            title.transition().duration(200).style('opacity', 1);
-        })
+            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 1); }
+        });
 
         ec.g.on('mouseleave', function() {
             ec.g.classed('hovered', false);
-            title.transition().duration(200).style('opacity', 0);
+            if(ec.title != '') { ec.titleElement.transition().duration(200).style('opacity', 0); }
         })
     }
 
@@ -229,7 +241,7 @@ function timeline(selector) {
         path += connectorVlines((e.startx+ e.endx)/2, eventY+POINT_RADIUS, e.getStartY(sortedParents[1])+POINT_RADIUS, CONNECTOR_RADIUS, GAP_ANGLE) + ' ';
 
         for(var i=1; i<numParents-1; i++) {
-            var eventY = e.getStartY(sortedParents[i]);
+            eventY = e.getStartY(sortedParents[i]);
             path +=
                 arc(e.startx+POINT_RADIUS, eventY+POINT_RADIUS, CONNECTOR_RADIUS, 0, 180) + ' '+
                 hline(e.startx+POINT_RADIUS, (e.startx+e.endx-W)/2, eventY+POINT_RADIUS+CONNECTOR_RADIUS) + ' ' +
@@ -276,7 +288,7 @@ function timeline(selector) {
     function drawTimeAxis(scaleX, height) {
         var xticks = function (gap) {
             return d3.svg.axis().scale(scaleX).orient("bottom").ticks(d3.time.years, gap);
-        }
+        };
         var xAxis = xticks(1);
         svg.append("g").attr("class", "xaxis")
             .attr("transform", "translate(0," + (height - TIME_AXIS_HEIGHT) + ")")
@@ -293,9 +305,10 @@ function timeline(selector) {
 
             events = items;
 
-            console.log(d3.set(items.map(function(e) { return e.eventType; })).values())
+            console.log(d3.set(items.map(function(e) { return e.eventType; })).values());
 
             var clusterMap = {};
+            var nonClusterEvents = [];
             var pushToClustermap = function (name, event) { // utility fn, used in next loop
                 if (clusterMap[name] != null) {
                     clusterMap[name].push(event);
@@ -306,12 +319,14 @@ function timeline(selector) {
 
             events.forEach(function (e) {
                 var cn = getClusterKeys(e);
+
                 if (Object.prototype.toString.call(cn) === '[object Array]') {
+                    if(cn.length==0) {
+                        nonClusterEvents.push(e);
+                    }
                     cn.forEach(function (c) {
                         pushToClustermap(c, e);
                     });
-                } else if (typeof cn === 'string') {
-                    pushToClustermap(cn, e);
                 } else {
                     console.log('unknown threads returned for data item ' + cn, e);
                 }
@@ -321,12 +336,18 @@ function timeline(selector) {
                 if (!clusterMap.hasOwnProperty(clusterName)) {
                     continue;
                 }
-                var ec = new EventCluster(clusterName, clusterMap[clusterName])
+                var ec = new EventCluster(clusterName, clusterMap[clusterName]);
                 eventClusters.push(ec);
                 clusterMap[clusterName].forEach(function(e) {
                     e.parentClusters.push(ec);
                 });
             }
+
+            nonClusterEvents.forEach(function(e) {
+                var ec = new EventCluster('', [e]);
+                eventClusters.push(ec);
+                e.parentClusters.push(ec);
+            });
 
             eventClusters.sort(function(ec1, ec2) { return ec1.startDate.getTime() - ec2.startDate.getTime(); });
 

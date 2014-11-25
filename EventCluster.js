@@ -33,4 +33,7 @@ var EventCluster = function(title, events) {
     this.endx = 0;
     this.depth = 1;
     this.thickness = depthEnds.length+2;
+
+    this.g = null;
+    this.titleElement = null;
 }
