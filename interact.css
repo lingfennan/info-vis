@@ -26,6 +26,24 @@ select {
     position: relative;
 }
 
+g.gridlines line {
+    stroke-width: 1px;
+    stroke: blue;
+}
+
+.tooltip {
+    width: auto;
+    position: absolute;
+    visibility: hidden;
+    color : black;
+    cursor:default;
+    background-color: #FFFFEE;
+    border: 1px solid;
+    padding: 4px;
+    shape-rendering: crispEdges;
+    pointer-events: none;
+}
+
 .cluster-g .cluster-rect {
     fill: #f7f7f7;
     stroke: #B2DCED;
@@ -51,6 +69,13 @@ select {
     stroke-width: 1px;
     stroke: black;
     opacity: 0.1;
+}
+
+g.xaxis path,
+g.xaxis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
 }
 
 button {
