@@ -44,7 +44,9 @@ function init() {
         allEvents.forEach(function(e) {
             var deps = [];
             e.causedByEvents.split(',').forEach(function (c) {
-                deps.push(eventsById[parseInt(c)]);
+				if (parseInt(c)) {
+					deps.push(eventsById[parseInt(c)]);
+				}
             });
             e.setCausedByEvents(deps);
         });

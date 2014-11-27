@@ -6,7 +6,9 @@ function timeline(selector) {
     var events = [],
         eventClusters = [],
         minDate = null,
-        maxDate = null;
+        maxDate = null,
+		nodes = [],
+		links = [];
 
     var UNIT_HEIGHT = 10;
     var TIME_AXIS_HEIGHT = 25;
@@ -27,6 +29,7 @@ function timeline(selector) {
         'uncategorized': 'uncategorized',
         'armstice': 'armstice'
     };
+	var getClusterKeys = function () {}, pushToClusterMap = function () {};
 
     function createTooltip() {
         var format = d3.time.format("%e %b %Y");
@@ -307,6 +310,28 @@ function timeline(selector) {
         return 'M '+x1+' '+y1+' L '+x1+' '+y2+' M '+x2+' '+y1+' L '+x2+' '+y2;
     }
 
+	function drawCausality(nodes, links) {
+		var force = d3.layout.force()
+			.nodes(nodes)
+			.links(links)
+			.start();
+		var path = svg.append("g").selectAll("path")
+			.data(force.links())
+			.enter()
+			.append("path")
+			.attr("class", "link");
+		/*	
+		var node = svg.selectAll(".node")
+			.data(force.nodes())
+			.enter()
+			.append("g")
+			.attr("class", "node")
+			.call(force.drag);
+		*/
+		// We don't need node anymore. Because events are already plotted.
+		// var node = s
+	}
+
     function drawTimeAxis(scaleX, height) {
         var xticks = function (gap) {
             return d3.svg.axis().scale(scaleX).orient("bottom").ticks(d3.time.years, gap);
@@ -326,12 +351,13 @@ function timeline(selector) {
         events: function (items, getClusterKeys) {
 
             events = items;
+			this.getClusterKeys = getClusterKeys;
 
             console.log(d3.set(items.map(function(e) { return e.eventType; })).values());
 
             var clusterMap = {};
             var nonClusterEvents = [];
-            var pushToClustermap = function (name, event) { // utility fn, used in next loop
+            pushToClustermap = function (name, event) { // utility fn, used in next loop
                 if (clusterMap[name] != null) {
                     clusterMap[name].push(event);
                 } else {
@@ -380,6 +406,40 @@ function timeline(selector) {
                 return e.isExtendedEvent() ? e.endDate : e.startDate;
             });
 
+			// initialize nodes
+			events.forEach(function (e) {
+				if (e.isExtendedEvent()) {
+					nodes[e.title + ".start"] = e;
+					nodes[e.title + ".end"] = e;
+				} else {
+					nodes[e.title] = e;
+				}
+			});
+
+			// every node looks backward.
+			for (var node in nodes) {
+				var e = nodes[node];
+				if (e.isExtendedEvent()) {
+					if (node.indexOf(".start") > -1) {
+						// proceed to the next block
+					} else if (node.indexOf(".end") > -1) {
+						continue;
+					} else {
+						console.log("unexpected node key ", node);
+						continue;
+					}
+				}
+				console.log("i am here");
+				console.log(e);
+				e.causedByEvents.forEach(function (ee) {
+					console.log(ee);
+					var link = {};
+					link.source = ee.isExtendedEvent() ? nodes[ee.title + ".end"] : nodes[ee.title];
+					link.target = e;
+					links.push(link);
+				});
+			}
+
             return timeline;
         },
 
@@ -393,7 +453,22 @@ function timeline(selector) {
             var maxDepth = calcCoordsAndDepthsAndGetMaxDepth(scaleX);
 
             var height = (maxDepth+3) * UNIT_HEIGHT + TIME_AXIS_HEIGHT;
+            events.forEach(function (e) {
+                var cn = getClusterKeys(e);
 
+                if (Object.prototype.toString.call(cn) === '[object Array]') {
+                    if(cn.length==0) {
+                        nonClusterEvents.push(e);
+                    }
+                    cn.forEach(function (c) {
+                        pushToClustermap(c, e);
+                    });
+                } else {
+                    console.log('unknown threads returned for data item ' + cn, e);
+                }
+            });
+
+			
             svg = d3.select(selector).append("svg").attr("width", width).attr("height", height);
             tooltip = createTooltip();
             svg.call(tooltip);
@@ -401,6 +476,7 @@ function timeline(selector) {
             drawGridLines(scaleX, height);
             eventClusters.forEach(drawCluster);
             events.forEach(drawEventConnector);
+			drawCausality(nodes, links);
             drawTimeAxis(scaleX, height);
 
             return timeline;
