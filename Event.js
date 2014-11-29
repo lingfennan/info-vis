@@ -7,6 +7,7 @@ var Event = function() {
 
     this.eventChains = [];
     this.causedByEvents = [];
+	this.causesEvents = [];
     this.causedByOrganizations = [];
     this.peopleInvolved = [];
     this.narrative = '';
@@ -84,6 +85,10 @@ Event.prototype.setNarrative = function(text) {
 
 Event.prototype.setCausedByEvents = function(es) {
     this.causedByEvents = es;
+}
+
+Event.prototype.addCausesEvents = function(es) {
+	this.causesEvents[this.causesEvents.length] = es;
 }
 
 Event.prototype.setChains = function (chains) {

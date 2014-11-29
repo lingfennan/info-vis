@@ -46,10 +46,14 @@ function init() {
             e.causedByEvents.split(',').forEach(function (c) {
 				if (parseInt(c)) {
 					deps.push(eventsById[parseInt(c)]);
+					eventsById[parseInt(c)].addCausesEvents(e);
 				}
             });
             e.setCausedByEvents(deps);
         });
+		allEvents.forEach(function(e) {
+			console.log(e);
+		});
 
 		eventTypes = d3.set(eventTypes).values();
 		organizations = d3.set(organizations).values();
