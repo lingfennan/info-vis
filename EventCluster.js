@@ -7,10 +7,11 @@ var EventCluster = function(title, events) {
 
     this.pointEvents = [];
     this.extendedEvents = [];
+    this.events = events;
 
-    events.sort(function(e1, e2) { return e1.startDate.getTime() - e2.startDate.getTime(); });
+    this.events.sort(function(e1, e2) { return e1.startDate.getTime() - e2.startDate.getTime(); });
     var depthEnds = [];
-    events.forEach(function (e) {
+    this.events.forEach(function (e) {
         var d = 0;
         for (d = 0; d < depthEnds.length; d++) {
             if (e.startDate.getTime() > depthEnds[d]) { break; }
@@ -18,14 +19,6 @@ var EventCluster = function(title, events) {
         e.setDepth(d, this);
         depthEnds[d] = e.endDate.getTime()+2592000000;
     }, this);
-
-    events.forEach(function(e) {
-        if(e.isExtendedEvent()) {
-            this.extendedEvents.push(e);
-        } else {
-            this.pointEvents.push(e);
-        }
-    }, this)
 
     // view related info
     this.startx = 0;
@@ -36,4 +29,44 @@ var EventCluster = function(title, events) {
 
     this.g = null;
     this.titleElement = null;
+}
+
+EventCluster.prototype.draw = function(svg, tooltip, UNIT_HEIGHT) {
+    this.g = svg.append('g').classed('cluster-g', true);
+
+    var me = this;
+    if (this.title != '') {
+        this.rect = this.g.append('rect')
+            .attr('x', this.startx)
+            .attr('y', this.starty)
+            .attr('rx', 5)
+            .attr('ry', 5)
+            .attr('width', this.endx - this.startx)
+            .attr('height', (this.thickness - 1) * UNIT_HEIGHT)
+            .attr('class', 'cluster-rect');
+
+        this.titleElement = this.g.append('text')
+            .attr('class', 'cluster-title')
+            .text(this.title)
+            .attr('x', this.startx)
+            .attr('y', this.starty - 5);
+    }
+
+    this.g.on('mouseenter', function() {
+        me.g.classed('hovered', true);
+        if(this.title != '') { me.titleElement.transition().ease('linear').duration(200).style('opacity', 1); }
+    })
+        .on('mouseleave', function() {
+            me.g.classed('hovered', false);
+            if(this.title != '') { me.titleElement.transition().duration(200).style('opacity', 0); }
+        });
+
+    this.events.forEach(function(e) { e.draw(this, UNIT_HEIGHT, tooltip); }, this);
+}
+
+EventCluster.prototype.redraw = function() {
+    if(this.title != '' ) {
+        this.rect.transition().duration(250).attr('x', this.startx).attr('width', this.endx - this.startx);
+        this.titleElement.transition().duration(250).attr('x', this.startx);
+    }
 }

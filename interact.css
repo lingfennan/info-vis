@@ -9,7 +9,7 @@ h1 {
     text-align: center;
     color: #980002 ;
     font-size: 24pt;
-} 
+}
 
 select {
     color: black;
@@ -26,11 +26,13 @@ select {
     position: relative;
 }
 
-g.gridlines line {
+g.axis line {
     stroke-width: 1px;
     stroke: #ccc;
     stroke-dasharray: 5 5;
 }
+
+g.axis .scale-bbox { stroke: none; fill: #ccc; }
 
 .tooltip {
     width: auto;
