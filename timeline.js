@@ -197,7 +197,6 @@ function timeline(selector) {
             drawAxisAndGridLines(scaleX, height, width);
             eventClusters.forEach(function(ec) { ec.draw(svg, tooltip, UNIT_HEIGHT); });
             events.forEach(function(e) { e.drawEventOutline(svg, UNIT_HEIGHT); });
-            drawCausality(nodes, links);
 
             return timeline;
         },
@@ -217,8 +216,6 @@ function timeline(selector) {
             var s = $container.scrollLeft();
             var w = $container.width();
             var s2 = (zf*s + w/2);
-
-            console.log('s = '+s+', w = '+w+', s2 = ',s2);
 
             $({s: s}).animate({ s: s2 }, {
                 duration: 250
