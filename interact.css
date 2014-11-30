@@ -81,7 +81,7 @@ g.axis .scale-bbox { stroke: none; fill: #ccc; }
     stroke: #555;
 }
 
-.causality {
+path.causality {
     fill: none;
     stroke-width: 2px;
     stroke: blue;

@@ -1,5 +1,6 @@
 var Event = function() {
     this.title = '';
+	this.eventId = '';
 
     this.startDate = new Date();
     this.endDate = new Date();
@@ -28,6 +29,10 @@ var Event = function() {
 
 Event.prototype.setTitle = function(t) {
     this.title = t;
+}
+
+Event.prototype.setEventId = function(id) {
+	this.eventId = id;
 }
 
 Event.prototype.setStartDate = function(dateString) {
@@ -156,7 +161,7 @@ Event.prototype.getDomElement = function(ec) {
     }
 }
 
-Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
+Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     var eventTypeClassMap = {
@@ -239,21 +244,26 @@ Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
     function onEventClicked(e) {
         e.clicked = !e.clicked;
         e.outline.classed('clicked', e.clicked);
-		drawCausality(e);
+		if (e.clicked) {
+			drawCausality(e);
+		} else {
+			removeCausality(e);
+		}
     }
 
-    function drawCausality(e) {
-		console.log(e);
+	function removeCausality(e) {
+		svg.selectAll("path.causality#id" + e.eventId).remove();
+	}
 
+    function drawCausality(e) {
         e.causedByEvents.forEach(function (ce) {
-			console.log("caused by");
-			console.log(ce);
 			path = lineto(ce.isExtendedEvent() ? ce.endx : ce.startx,
 				e.startx,
 				ce.getStartY(ce.parentClusters[0]),
 				e.getStartY(e.parentClusters[0]));
-			causedBy = ec.g.append('path')
+			causedBy = svg.append('path')
 				.attr('d', path)
+				.attr('id', 'id' + e.eventId)
 				.attr('class', 'causality');
         });
         e.causesEvents.forEach(function (ce) {
@@ -263,8 +273,9 @@ Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
 				ce.startx,
 				e.getStartY(e.parentClusters[0]),
 				ce.getStartY(ce.parentClusters[0]));
-			causedBy = ec.g.append('path')
+			causedBy = svg.append('path')
 				.attr('d', path)
+				.attr('id', 'id' + e.eventId)
 				.attr('class', 'causality');
         });
     }

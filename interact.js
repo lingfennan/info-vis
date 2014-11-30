@@ -16,6 +16,7 @@ function init() {
             var e = new Event();
 
             e.setTitle(d["title"]);
+			e.setEventId(d["eventId"]);
             e.setStartDate(d["dateStarted"]);
             if (d["dateEnded"] != "") {
                 e.setEndDate(d["dateEnded"]);
