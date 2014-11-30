@@ -81,6 +81,13 @@ g.axis .scale-bbox { stroke: none; fill: #ccc; }
     stroke: #555;
 }
 
+.causality {
+    fill: none;
+    stroke-width: 2px;
+    stroke: blue;
+    opacity: 1;
+}
+
 .civil-unrest { fill: #E66000; }
 .migration { fill:#969474; }
 .war { fill:#E82102; }

@@ -239,7 +239,39 @@ Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
     function onEventClicked(e) {
         e.clicked = !e.clicked;
         e.outline.classed('clicked', e.clicked);
+		drawCausality(e);
     }
+
+    function drawCausality(e) {
+		console.log(e);
+
+        e.causedByEvents.forEach(function (ce) {
+			console.log("caused by");
+			console.log(ce);
+			path = lineto(ce.isExtendedEvent() ? ce.endx : ce.startx,
+				e.startx,
+				ce.getStartY(ce.parentClusters[0]),
+				e.getStartY(e.parentClusters[0]));
+			causedBy = ec.g.append('path')
+				.attr('d', path)
+				.attr('class', 'causality');
+        });
+        e.causesEvents.forEach(function (ce) {
+			console.log("causes");
+			console.log(ce);
+			path = lineto(e.isExtendedEvent() ? e.endx : e.startx,
+				ce.startx,
+				e.getStartY(e.parentClusters[0]),
+				ce.getStartY(ce.parentClusters[0]));
+			causedBy = ec.g.append('path')
+				.attr('d', path)
+				.attr('class', 'causality');
+        });
+    }
+
+	function lineto(x1, x2, y1, y2) {
+		return 'M '+x1+' '+y1+' L '+x2+' '+y2;
+	}
 }
 
 Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
@@ -360,6 +392,7 @@ Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
     function hline(x1, x2, y) {
         return 'M '+x1+' '+y+' L '+x2+' '+y;
     }
+
 }
 
 Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
