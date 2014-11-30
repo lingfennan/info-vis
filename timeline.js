@@ -6,9 +6,7 @@ function timeline(selector) {
     var events = [],
         eventClusters = [],
         minDate = null,
-        maxDate = null,
-		nodes = [],
-		links = [];
+        maxDate = null;
 
     var UNIT_HEIGHT = 10;
     var TIME_AXIS_HEIGHT = 25;
@@ -197,6 +195,7 @@ function timeline(selector) {
         function onEventClicked(e) {
             e.clicked = !e.clicked;
             e.connector.classed('clicked', e.clicked);
+			drawCausality(e);
         }
     }
 
@@ -310,26 +309,12 @@ function timeline(selector) {
         return 'M '+x1+' '+y1+' L '+x1+' '+y2+' M '+x2+' '+y1+' L '+x2+' '+y2;
     }
 
-	function drawCausality(nodes, links) {
-		var force = d3.layout.force()
-			.nodes(nodes)
-			.links(links)
-			.start();
-		var path = svg.append("g").selectAll("path")
-			.data(force.links())
-			.enter()
-			.append("path")
-			.attr("class", "link");
-		/*	
-		var node = svg.selectAll(".node")
-			.data(force.nodes())
-			.enter()
-			.append("g")
-			.attr("class", "node")
-			.call(force.drag);
-		*/
-		// We don't need node anymore. Because events are already plotted.
-		// var node = s
+	function drawCausality(e) {
+		e.causeByEvents.forEach(function (ce) {
+
+		});
+		e.causesEvents.forEach(function (ce) {
+		});
 	}
 
     function drawTimeAxis(scaleX, height) {
@@ -406,40 +391,6 @@ function timeline(selector) {
                 return e.isExtendedEvent() ? e.endDate : e.startDate;
             });
 
-			// initialize nodes
-			events.forEach(function (e) {
-				if (e.isExtendedEvent()) {
-					nodes[e.title + ".start"] = e;
-					nodes[e.title + ".end"] = e;
-				} else {
-					nodes[e.title] = e;
-				}
-			});
-
-			// every node looks backward.
-			for (var node in nodes) {
-				var e = nodes[node];
-				if (e.isExtendedEvent()) {
-					if (node.indexOf(".start") > -1) {
-						// proceed to the next block
-					} else if (node.indexOf(".end") > -1) {
-						continue;
-					} else {
-						console.log("unexpected node key ", node);
-						continue;
-					}
-				}
-				console.log("i am here");
-				console.log(e);
-				e.causedByEvents.forEach(function (ee) {
-					console.log(ee);
-					var link = {};
-					link.source = ee.isExtendedEvent() ? nodes[ee.title + ".end"] : nodes[ee.title];
-					link.target = e;
-					links.push(link);
-				});
-			}
-
             return timeline;
         },
 
@@ -476,7 +427,6 @@ function timeline(selector) {
             drawGridLines(scaleX, height);
             eventClusters.forEach(drawCluster);
             events.forEach(drawEventConnector);
-			drawCausality(nodes, links);
             drawTimeAxis(scaleX, height);
 
             return timeline;
