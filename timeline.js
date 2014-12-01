@@ -113,13 +113,6 @@ function timeline(selector) {
             .text(function(i) { return i.getFullYear(); });
     }
 
-    function drawCausality(e) {
-        e.causedByEvents.forEach(function (ce) {
-        });
-        e.causesEvents.forEach(function (ce) {
-        });
-    }
-
     return timeline = {
 
         events: function (items, getClusterKeys) {

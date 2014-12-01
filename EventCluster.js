@@ -61,7 +61,7 @@ EventCluster.prototype.draw = function(svg, tooltip, UNIT_HEIGHT) {
             if(this.title != '') { me.titleElement.transition().duration(200).style('opacity', 0); }
         });
 
-    this.events.forEach(function(e) { e.draw(this, UNIT_HEIGHT, tooltip); }, this);
+    this.events.forEach(function(e) { e.draw(svg, this, UNIT_HEIGHT, tooltip); }, this);
 }
 
 EventCluster.prototype.redraw = function() {

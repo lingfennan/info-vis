@@ -1,5 +1,6 @@
 var Event = function() {
     this.title = '';
+	this.eventId = '';
 
     this.startDate = new Date();
     this.endDate = new Date();
@@ -28,6 +29,10 @@ var Event = function() {
 
 Event.prototype.setTitle = function(t) {
     this.title = t;
+}
+
+Event.prototype.setEventId = function(id) {
+	this.eventId = id;
 }
 
 Event.prototype.setStartDate = function(dateString) {
@@ -156,7 +161,7 @@ Event.prototype.getDomElement = function(ec) {
     }
 }
 
-Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
+Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     var eventTypeClassMap = {
@@ -239,7 +244,77 @@ Event.prototype.draw = function(ec, UNIT_HEIGHT, tooltip) {
     function onEventClicked(e) {
         e.clicked = !e.clicked;
         e.outline.classed('clicked', e.clicked);
+		if (e.clicked) {
+			drawCausality(e);
+		} else {
+			removeCausality(e);
+		}
     }
+
+	function removeCausality(e) {
+		svg.selectAll("#id" + e.eventId).remove();
+	}
+
+    function drawCausality(e) {
+        e.causedByEvents.forEach(function (ce) {
+			path = getCausalityPath(ce, e);
+			var marker = svg.append('defs').append('marker')
+				.attr('id', 'id' + e.eventId)
+				.attr('orient', 'auto')
+				.attr('markerWidth', '4')
+				.attr('markerHeight', '8')
+				.attr('refX', POINT_RADIUS)
+				.attr('refY', '4')
+				.attr('class', 'causedBy');
+			marker.append('path')
+				.attr('d', 'M0,0 V8 L4,4 Z')
+				.attr('class', 'causedByMarker')
+			svg.append('path')
+				.attr('d', path)
+				.attr('marker-end', 'url(#id' + e.eventId + ')')
+				.attr('id', 'id' + e.eventId)
+				.attr('class', 'causedBy');
+        });
+        e.causesEvents.forEach(function (ce) {
+			path = getCausalityPath(e, ce);
+			var marker = svg.append('defs').append('marker')
+				.attr('id', 'id' + e.eventId)
+				.attr('orient', 'auto')
+				.attr('markerWidth', '4')
+				.attr('markerHeight', '8')
+				.attr('refX', POINT_RADIUS)
+				.attr('refY', '4')
+				.attr('class', 'causes');
+			marker.append('path')
+				.attr('d', 'M0,0 V8 L4,4 Z')
+				.attr('class', 'causesMarker')
+
+			svg.append('path')
+				.attr('d', path)
+				.attr('marker-end', 'url(#id' + e.eventId + ')')
+				.attr('id', 'id' + e.eventId)
+				.attr('class', 'causes');
+        });
+    }
+
+	function getCausalityPath(causer, causee) {
+		var startx = causer.isExtendedEvent() ? causer.endx : causer.startx;
+		var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
+		var endx = causee.startx;
+		var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
+		return curveto(startx, starty, endx, endy, endx, starty);
+	}
+
+	function curveto(x1, y1, x2, y2, x, y) {
+		// x1, y1 is start
+		// x2, y2 is destination
+		// x, y is control point
+		return 'M '+x1+' '+y1+' Q' + x + ',' + y + ' ' + x2 + ',' + y2;
+	}
+
+	function lineto(x1, x2, y1, y2) {
+		return 'M '+x1+' '+y1+' L '+x2+' '+y2;
+	}
 }
 
 Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
@@ -360,6 +435,7 @@ Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
     function hline(x1, x2, y) {
         return 'M '+x1+' '+y+' L '+x2+' '+y;
     }
+
 }
 
 Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
