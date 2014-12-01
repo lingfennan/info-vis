@@ -163,6 +163,7 @@ Event.prototype.getDomElement = function(ec) {
 
 Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
+    var ARROW_RADIUS = POINT_RADIUS+4;
 
     var eventTypeClassMap = {
         'diplomacy': 'diplomacy',
@@ -252,31 +253,56 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     }
 
 	function removeCausality(e) {
-		svg.selectAll("path.causality#id" + e.eventId).remove();
+		svg.selectAll("#id" + e.eventId).remove();
 	}
 
     function drawCausality(e) {
         e.causedByEvents.forEach(function (ce) {
 			path = lineto(ce.isExtendedEvent() ? ce.endx : ce.startx,
 				e.startx,
-				ce.getStartY(ce.parentClusters[0]),
-				e.getStartY(e.parentClusters[0]));
-			causedBy = svg.append('path')
-				.attr('d', path)
+				ce.isExtendedEvent() ? ce.getStartY(ce.parentClusters[0])+POINT_RADIUS : ce.getStartY(ce.parentClusters[0]),
+				e.isExtendedEvent() ? e.getStartY(e.parentClusters[0])+POINT_RADIUS : e.getStartY(e.parentClusters[0]));
+			var marker = svg.append('defs').append('marker')
 				.attr('id', 'id' + e.eventId)
-				.attr('class', 'causality');
+				.attr('orient', 'auto')
+				.attr('markerWidth', '4')
+				.attr('markerHeight', '8')
+				.attr('refX', ARROW_RADIUS)
+				.attr('refY', '4')
+				.attr('class', 'causedBy');
+			marker.append('path')
+				.attr('d', 'M0,0 V8 L4,4 Z')
+				.attr('class', 'causedByMarker')
+			svg.append('path')
+				.attr('d', path)
+				.attr('marker-end', 'url(#id' + e.eventId + ')')
+				.attr('id', 'id' + e.eventId)
+				.attr('class', 'causedBy');
         });
         e.causesEvents.forEach(function (ce) {
 			console.log("causes");
 			console.log(ce);
 			path = lineto(e.isExtendedEvent() ? e.endx : e.startx,
 				ce.startx,
-				e.getStartY(e.parentClusters[0]),
-				ce.getStartY(ce.parentClusters[0]));
-			causedBy = svg.append('path')
-				.attr('d', path)
+				e.isExtendedEvent() ? e.getStartY(e.parentClusters[0])+POINT_RADIUS : e.getStartY(e.parentClusters[0]),
+				ce.isExtendedEvent() ? ce.getStartY(ce.parentClusters[0])+POINT_RADIUS : ce.getStartY(ce.parentClusters[0]));
+			var marker = svg.append('defs').append('marker')
 				.attr('id', 'id' + e.eventId)
-				.attr('class', 'causality');
+				.attr('orient', 'auto')
+				.attr('markerWidth', '4')
+				.attr('markerHeight', '8')
+				.attr('refX', ARROW_RADIUS)
+				.attr('refY', '4')
+				.attr('class', 'causes');
+			marker.append('path')
+				.attr('d', 'M0,0 V8 L4,4 Z')
+				.attr('class', 'causesMarker')
+
+			svg.append('path')
+				.attr('d', path)
+				.attr('marker-end', 'url(#id' + e.eventId + ')')
+				.attr('id', 'id' + e.eventId)
+				.attr('class', 'causes');
         });
     }
 
