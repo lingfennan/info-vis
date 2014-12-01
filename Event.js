@@ -163,7 +163,6 @@ Event.prototype.getDomElement = function(ec) {
 
 Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
-    var ARROW_RADIUS = POINT_RADIUS+4;
 
     var eventTypeClassMap = {
         'diplomacy': 'diplomacy',
@@ -258,16 +257,13 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
 
     function drawCausality(e) {
         e.causedByEvents.forEach(function (ce) {
-			path = lineto(ce.isExtendedEvent() ? ce.endx : ce.startx,
-				e.startx,
-				ce.isExtendedEvent() ? ce.getStartY(ce.parentClusters[0])+POINT_RADIUS : ce.getStartY(ce.parentClusters[0]),
-				e.isExtendedEvent() ? e.getStartY(e.parentClusters[0])+POINT_RADIUS : e.getStartY(e.parentClusters[0]));
+			path = getCausalityPath(ce, e);
 			var marker = svg.append('defs').append('marker')
 				.attr('id', 'id' + e.eventId)
 				.attr('orient', 'auto')
 				.attr('markerWidth', '4')
 				.attr('markerHeight', '8')
-				.attr('refX', ARROW_RADIUS)
+				.attr('refX', POINT_RADIUS)
 				.attr('refY', '4')
 				.attr('class', 'causedBy');
 			marker.append('path')
@@ -280,18 +276,13 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
 				.attr('class', 'causedBy');
         });
         e.causesEvents.forEach(function (ce) {
-			console.log("causes");
-			console.log(ce);
-			path = lineto(e.isExtendedEvent() ? e.endx : e.startx,
-				ce.startx,
-				e.isExtendedEvent() ? e.getStartY(e.parentClusters[0])+POINT_RADIUS : e.getStartY(e.parentClusters[0]),
-				ce.isExtendedEvent() ? ce.getStartY(ce.parentClusters[0])+POINT_RADIUS : ce.getStartY(ce.parentClusters[0]));
+			path = getCausalityPath(e, ce);
 			var marker = svg.append('defs').append('marker')
 				.attr('id', 'id' + e.eventId)
 				.attr('orient', 'auto')
 				.attr('markerWidth', '4')
 				.attr('markerHeight', '8')
-				.attr('refX', ARROW_RADIUS)
+				.attr('refX', POINT_RADIUS)
 				.attr('refY', '4')
 				.attr('class', 'causes');
 			marker.append('path')
@@ -305,6 +296,21 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
 				.attr('class', 'causes');
         });
     }
+
+	function getCausalityPath(causer, causee) {
+		var startx = causer.isExtendedEvent() ? causer.endx : causer.startx;
+		var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
+		var endx = causee.startx;
+		var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
+		return curveto(startx, starty, endx, endy, endx, starty);
+	}
+
+	function curveto(x1, y1, x2, y2, x, y) {
+		// x1, y1 is start
+		// x2, y2 is destination
+		// x, y is control point
+		return 'M '+x1+' '+y1+' Q' + x + ',' + y + ' ' + x2 + ',' + y2;
+	}
 
 	function lineto(x1, x2, y1, y2) {
 		return 'M '+x1+' '+y1+' L '+x2+' '+y2;
