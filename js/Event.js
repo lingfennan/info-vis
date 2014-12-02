@@ -82,7 +82,11 @@ Event.prototype.setEventType = function(et) {
 }
 
 Event.prototype.setOrganizations = function(orgs) {
-    this.causedByOrganizations = orgs;
+    this.causedByOrganizations = [];
+    orgs.split(',').forEach(function(o) {
+        o = o.trim();
+        if(o!='') { this.causedByOrganizations.push(o); }
+    }, this);
 }
 
 Event.prototype.setNarrative = function(text) {
@@ -93,8 +97,12 @@ Event.prototype.setLocation = function(l) {
     this.location = l;
 }
 
-Event.prototype.setPeople = function(p) {
-    this.peopleInvolved = p.split(',');
+Event.prototype.setPeople = function(people) {
+    this.peopleInvolved = [];
+    people.split(',').forEach(function(p) {
+        p = p.trim();
+        if(p!='') { this.peopleInvolved.push(p); }
+    }, this);
 }
 
 Event.prototype.setNarrative = function(text) {

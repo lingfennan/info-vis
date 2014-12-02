@@ -4,12 +4,10 @@ $(function() {
 
     var eventTypes = [];
     var organizations = [];
+    var persons = [];
     var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
 
     d3.csv('data.csv', function(dataset) {
-        eventTypes.push("All Events");
-        organizations.push("All Organizations");
-
         var eventsById = {};
 
         dataset.forEach(function(d) {
@@ -22,13 +20,10 @@ $(function() {
                 e.setEndDate(d["dateEnded"]);
             }
             if ((typeof d["eventType"] != "undefined") && (d["eventType"] != "")) {
-                eventTypes.push(d["eventType"]);
                 e.setEventType(d["eventType"]);
             }
             if ((typeof d["causedByOrgs"] != "undefined") && (d["causedByOrgs"] != "")) {
-                var orgs = d["causedByOrgs"].split(',');
-                organizations.push.apply(organizations, orgs);
-                e.setOrganizations(orgs);
+                e.setOrganizations(d["causedByOrgs"]);
             }
 
             e.setNarrative(d["narrative"]);
@@ -37,6 +32,10 @@ $(function() {
             e.setPeople(d['peopleInvolved']);
             e.setCausedByEvents(d['causedByEvents']);
             e.setChains(d['chains']);
+
+            eventTypes.push(e.eventType);
+            organizations.push.apply(organizations, e.causedByOrganizations);
+            persons.push.apply(persons, e.peopleInvolved);
 
             allEvents.push(e);
             eventsById[d['eventId']] = e;
@@ -55,19 +54,31 @@ $(function() {
 
         eventTypes = d3.set(eventTypes).values();
         organizations = d3.set(organizations).values();
+        persons = d3.set(persons).values();
 
-        addOptions(d3.select("#showing"), eventTypes);
-        addOptions(d3.select("#cluster"), clusterBy);
+        var eventTypeClassMap = {
+            'diplomacy': 'Diplomacy',
+            'revolution': 'Revolution',
+            'political development': 'Political Development',
+            'migration': 'Migration',
+            'antisemetism':'Antisemetism',
+            'org founded': 'Org-founded',
+            'war': 'War',
+            'civil unrest': 'Civil Unrest',
+            'peace process': 'Peace Process',
+            'uncategorized': 'Uncategorized',
+            'armstice': 'Armstice'
+        };
+
+        MultiselectDropdown('#event-types-selector', eventTypes, function(et) { return eventTypeClassMap[et]; });
+        MultiselectDropdown('#persons-selector', persons);
+        MultiselectDropdown('#orgs-selector', organizations);
 
         var t = timeline('#timeline')
             .events(allEvents, function(e) { return e.eventChains; })
             .onEventClick(onEventClicked)
             .draw();
-
-//        setTimeout(function() {t.zoom(2); }, 2000);
     });
-
-
 
     $('#start-exploring').click(function() {
         $('#intro').fadeOut('fast', function() { $('#no-event-placeholder').fadeIn('fast'); });
@@ -109,17 +120,6 @@ $(function() {
         }
     }
 
-
-    function addOptions(select, data) {
-        select.selectAll("option").remove();
-        select.selectAll("option").data(data).enter().append("option").text(function(d) {
-            return d;
-        })
-            .attr("value", function(d) {
-                return d;
-            });
-    }
-
     $(window).resize(onresize);
 
     function onresize() {
@@ -128,7 +128,5 @@ $(function() {
     }
     setTimeout(onresize, 200);
 
-    $('.dropdown-menu input, .dropdown-menu label').click(function(e) {
-        e.stopPropagation();
-    });
+
 });
