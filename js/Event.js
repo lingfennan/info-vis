@@ -251,7 +251,6 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     }
 
     this.drawEventOutline(svg, UNIT_HEIGHT);
-    this.drawEventArrows(svg, POINT_RADIUS);
 }
 
 Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
@@ -375,7 +374,9 @@ Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
 
 }
 
-Event.prototype.drawEventArrows = function(svg, POINT_RADIUS) {
+Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
+
+    var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     this.causedByEvents.forEach(function (ce) {
         var path = getCausalityPath(ce, this);

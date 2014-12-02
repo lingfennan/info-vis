@@ -198,6 +198,7 @@ function timeline(selector) {
 
             drawAxisAndGridLines(scaleX, height, width);
             eventClusters.forEach(function(ec) { ec.draw(svg, tooltip, UNIT_HEIGHT); });
+            events.forEach(function(e) { e.drawEventArrows(svg, UNIT_HEIGHT); });
 
             return timeline;
         },

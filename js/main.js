@@ -85,6 +85,7 @@ $(function() {
     $(window).resize(onresize);
 
     function onresize() {
+
         $('#timeline').css('padding-left', $('#mainbar').width()+30);
     }
     onresize();
