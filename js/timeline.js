@@ -7,9 +7,14 @@ function timeline(selector) {
 
     var events = [],
         eventClusters = [],
+        eventTypes = [],
+        organizations = [],
+        persons = [],
         minDate = null,
         maxDate = null,
         axis = null;
+
+    var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
 
     var eventClickHanders = [];
 
@@ -114,6 +119,48 @@ function timeline(selector) {
             .text(function(i) { return i.getFullYear(); });
     }
 
+    var showingEventTypes = 'all';
+    var showingPersons = 'all';
+    var showingOrganizations = 'all';
+
+    function eventTypeSelectionUpdate(ets) {
+        showingEventTypes = ets;
+        updateEventFilter();
+    }
+    function personSelectionUpdate(ps) {
+        showingPersons = ps;
+        updateEventFilter();
+    }
+    function orgSelectionUpdate(orgs) {
+        showingOrganizations = orgs;
+        updateEventFilter();
+    }
+    function updateEventFilter() {
+        events.forEach(function(e) {
+            if(matchesFilter(e)) {
+                e.show();
+//                console.log('showing '+e.title + ' ' + e.getDurationString());
+            } else {
+                e.hide();
+//                console.log('hiding '+e.title + ' ' + e.getDurationString());
+            }
+        });
+    }
+    function matchesFilter(e) {
+        var matchesET = showingEventTypes==='all' || showingEventTypes.indexOf(e.eventType) != -1;
+        var matchesPersons = showingPersons==='all' || arraysIntersect(e.peopleInvolved, showingPersons);
+        var matchesOrgs = showingOrganizations==='all' || arraysIntersect(e.causedByOrganizations, showingOrganizations);
+
+        return matchesET && matchesPersons && matchesOrgs;
+    }
+    function arraysIntersect(arr1,arr2) {
+        for(var i=0; i<arr1.length; i++) {
+            var a = arr1[i];
+            if(arr2.indexOf(a) >= 0) return true;
+        }
+        return false;
+    }
+
     var timeline = {
 
         events: function (items, getClusterKeys) {
@@ -134,6 +181,10 @@ function timeline(selector) {
                 var cn = getClusterKeys(e);
                 e.setClickHandler(onEventClicked);
 
+                eventTypes.push(e.eventType);
+                organizations.push.apply(organizations, e.causedByOrganizations);
+                persons.push.apply(persons, e.peopleInvolved);
+
                 if (Object.prototype.toString.call(cn) === '[object Array]') {
                     if(cn.length==0) {
                         nonClusterEvents.push(e);
@@ -145,6 +196,28 @@ function timeline(selector) {
                     console.log('unknown threads returned for data item ' + cn, e);
                 }
             });
+
+            eventTypes = d3.set(eventTypes).values();
+            organizations = d3.set(organizations).values();
+            persons = d3.set(persons).values();
+
+            var eventTypeDescMap = {
+                'diplomacy': 'Diplomacy',
+                'revolution': 'Revolution',
+                'political development': 'Political Development',
+                'migration': 'Migration',
+                'antisemetism':'Antisemetism',
+                'org founded': 'Org-founded',
+                'war': 'War',
+                'civil unrest': 'Civil Unrest',
+                'peace process': 'Peace Process',
+                'uncategorized': 'Uncategorized',
+                'armstice': 'Armstice'
+            };
+
+            MultiselectDropdown('#event-types-selector', eventTypes, function(et) { return eventTypeDescMap[et]; }, eventTypeSelectionUpdate, 'all event types');
+            MultiselectDropdown('#persons-selector', persons, null, personSelectionUpdate, 'all persons');
+            MultiselectDropdown('#orgs-selector', organizations, null, orgSelectionUpdate, 'all organizations');
 
             for (var clusterName in clusterMap) {
                 if (!clusterMap.hasOwnProperty(clusterName)) {

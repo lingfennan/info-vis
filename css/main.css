@@ -36,6 +36,7 @@ body {
 #controls label { font-weight: normal; }
 #controls ul.options li { float: left; width: 180px; }
 #controls ul.options li.separator { clear: both; float: left; width: 100%; border-bottom: 1px solid #ddd; margin: 3px 0 5px 0; }
+#controls .dropdown-toggle p.hilite { background-color: #ff7 }
 #controls ul.dropdown-menu { padding: 10px; margin: -5px 0 0 10px; }
 #controls ul.multiselect-dropdown { width: 400px; }
 #controls ul.dropdown-menu::before {
@@ -79,7 +80,6 @@ body {
 }
 
 #timeline {
-    padding-left: 200px;
     overflow-x: scroll;
     overflow-y: hidden;
     position: relative;

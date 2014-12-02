@@ -23,6 +23,7 @@ var Event = function() {
     this.startys = {};
     this.depths = {};
     this.clicked = false;
+    this.hidden = false;
     this.outline = null;
     this.arrows = [];
     this.domElements = {};
@@ -227,9 +228,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
         this.setDomElement(el, ec);
     }
 
-
-
     function onEventMouseover(e) {
+        if(e.hidden) return;
         var dir = '';
         var offset = [0, 0];
         var sortedParents = e.parentClusters.sort(function(ec1, ec2) { return ec1.depth - ec2.depth; });
@@ -250,9 +250,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
         });
     }
 
-    this.onEventMouseout = onEventMouseout; /// HACK!
-
     function onEventMouseout(e) {
+        if(e.hidden) return;
         tooltip.hide();
         if(!e.clicked) {
             var op = (e.parentClusters.length < 2) ? 0 : 0.1;
@@ -268,6 +267,10 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     function onEventClicked(e) {
         e.clickHandler(e);
     }
+
+    this.onEventMouseout = onEventMouseout; /// HACK!
+    this.onEventClicked = onEventClicked; /// HACK!
+
 
     this.drawEventOutline(svg, UNIT_HEIGHT);
 }
@@ -448,7 +451,7 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
     function getCausalityPath(causer, causee) {
 		if (causer.startx > causee.endx) {
-			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
+//			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
 		}
         var endx = causee.startx;
         var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
@@ -551,4 +554,21 @@ Event.prototype.hideArrows = function() {
     this.arrows.forEach(function(a) {
         a.style("visibility", "hidden");
     });
+}
+Event.prototype.show = function() {
+    this.parentClusters.forEach(function(ec) {
+        var el = this.getDomElement(ec);
+        el.attr('opacity', 1);
+    }, this);
+    this.hidden = false;
+}
+Event.prototype.hide = function() {
+    this.parentClusters.forEach(function(ec) {
+        var el = this.getDomElement(ec);
+        el.attr('opacity', 0.1);
+    }, this);
+    if(this.clicked) {
+        this.onEventClicked(this);
+    }
+    this.hidden = true;
 }
