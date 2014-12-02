@@ -447,15 +447,13 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
 
     function getCausalityPath(causer, causee) {
+		if (causer.startx > causee.endx) {
+			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
+		}
         var endx = causee.startx;
         var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
         var startx = causer.isExtendedEvent() && causer.endx < endx ? causer.endx : causer.startx;
         var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
-
-		if (causer.eventId == '43') {
-			console.log('id 43: ' + startx + ' ' + starty + ' ' + endx + ' ' + endy + ' ');
-		}
-
 		var xdiff = Math.abs(endx - startx);
 		var ydiff = Math.abs(endy - starty);
 		var cubic = false;
