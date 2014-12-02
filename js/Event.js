@@ -387,7 +387,7 @@ Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
 
 Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
-    var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
+    var POINT_RADIUS = UNIT_HEIGHT/2;
 
     this.causedByEvents.forEach(function (ce) {
         var path = getCausalityPath(ce, this);
@@ -439,19 +439,53 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
 
     function getCausalityPath(causer, causee) {
-        var startx = causer.isExtendedEvent() ? causer.endx : causer.startx;
-        var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
         var endx = causee.startx;
         var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
-        return curveto(startx, starty, endx, endy, endx, starty);
+        var startx = causer.isExtendedEvent() && causer.endx < endx ? causer.endx : causer.startx;
+        var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
+
+		if (causer.eventId == '43') {
+			console.log('id 43: ' + startx + ' ' + starty + ' ' + endx + ' ' + endy + ' ');
+		}
+
+		var xdiff = Math.abs(endx - startx);
+		var ydiff = Math.abs(endy - starty);
+		var cubic = false;
+		if (xdiff < 10 && xdiff + ydiff > 60) {
+			var cx1 = startx - Math.max(60 - ydiff / 20, UNIT_HEIGHT * 2);
+			var cx2 = endx - Math.max(60 - ydiff / 20, UNIT_HEIGHT * 2);
+			var cy1 = starty;
+			var cy2 = endy;
+			cubic = true;
+		} else if (ydiff < 10 && xdiff + ydiff > 60) {
+			var cx1 = startx;
+			var cx2 = endx;
+			var cy1 = starty - Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2);
+			var cy2 = endy - Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2);
+			cubic = true;
+		} else if (xdiff + ydiff < 60) {
+			var cx1 = startx - Math.max(60 - ydiff / 20, UNIT_HEIGHT * 2);
+			var cx2 = endx - Math.max(60 - ydiff / 20, UNIT_HEIGHT * 2) * (xdiff < ydiff ? 1 : -1);
+			var cy1 = starty -  Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2) * (starty < endy ? 1 : -1);
+			var cy2 = endy - Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2) * (starty < endy ? 1 : -1) * (xdiff < ydiff ? -1 : 1);
+			cubic = true;
+		}
+		if (cubic) 
+			return cCurveTo(startx, starty, endx, endy, cx1, cy1, cx2, cy2);
+		else
+			return qCurveTo(startx, starty, endx, endy, endx, starty);
     }
 
-    function curveto(x1, y1, x2, y2, x, y) {
+    function qCurveTo(x1, y1, x2, y2, cx, cy) {
         // x1, y1 is start
         // x2, y2 is destination
-        // x, y is control point
-        return 'M '+x1+' '+y1+' Q' + x + ',' + y + ' ' + x2 + ',' + y2;
+        // cx, cy is control point
+        return 'M ' + x1 + ',' + y1 +' Q' + cx + ',' + cy + ' ' + x2 + ',' + y2;
     }
+
+	function cCurveTo(x1, y1, x2, y2, cx1, cy1, cx2, cy2) {
+		return 'M' + x1 + ' ' + y1 + ' C' + cx1 + ',' + cy1 + ' ' + cx2 + ',' + cy2 + ' ' + x2 + ',' + y2;
+	}
 }
 
 Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
