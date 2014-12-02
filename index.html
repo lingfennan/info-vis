@@ -8,29 +8,37 @@
     <script src="lib/d3.js"></script>
     <script src="lib/d3.tip.js"></script>
     <script src="lib/jquery-2.1.1.min.js"></script>
-    <script src="Event.js"></script>
-    <script src="EventCluster.js"></script>
+    <script src="js/Event.js"></script>
+    <script src="js/EventCluster.js"></script>
+    <script src="js/timeline.js"></script>
 
-    <script src="interact.js"></script>
-    <link href="interact.css" rel="stylesheet" type="text/css" />
-    <link href="lib/d3.tip.css" rel="stylesheet" type="text/css" />
+    <script src="js/main.js"></script>
+    <link href="css/main.css" rel="stylesheet" type="text/css" />
+    <link href="css/d3.tip.css" rel="stylesheet" type="text/css" />
 
-    <script src="timeline.js"></script>
 
 </head>
 
-<body onload="init()">
-	<h1>History of Israel-Palestine's Conflict</h1>
-    <label for="showing">Showing: </label>
-	<select id="showing" onchange="updateSelectedDataset()">
-	</select>
-	<label for="cluster">Events clustered by: </label>
-	<select id="cluster" onchange="updateSelectedDataset()">
-		<!--option>Please Select</option>-->
-	</select>
+<body><div class="container-fluid">
 
-<div id="timeline"></div>
-
-</body>
+    <div class="row">
+        <div class="col-md-3">
+            <h1>History of Israel-Palestine's Conflict</h1>
+        </div>
+        <div class="col-md-9">
+            <div class="row"><div class="col-md-12">
+                <label for="showing">Showing: </label>
+                <select id="showing" onchange="updateSelectedDataset()">
+                </select>
+                <label for="cluster">Events clustered by: </label>
+                <select id="cluster" onchange="updateSelectedDataset()">
+                    <!--option>Please Select</option>-->
+                </select>
+            </div></div>
+            <div class="row"><div class="col-md-12" id='timeline'>
+            </div></div>
+        </div>
+    </div>
+</div></body>
 
 </html>

@@ -1,11 +1,11 @@
+$(function() {
 
-var allEvents = [];
+    var allEvents = [];
 
-var eventTypes = [];
-var organizations = [];
-var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
+    var eventTypes = [];
+    var organizations = [];
+    var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
 
-function init() {
     d3.csv('data.csv', function(dataset) {
         eventTypes.push("All Events");
         organizations.push("All Organizations");
@@ -63,16 +63,18 @@ function init() {
             .events(allEvents, function(e) { return e.eventChains; })
             .draw();
 
-        setTimeout(function() {t.zoom(2); }, 2000);
+//        setTimeout(function() {t.zoom(2); }, 2000);
     });
-}
 
-function addOptions(select, data) {
-    select.selectAll("option").remove();
-    select.selectAll("option").data(data).enter().append("option").text(function(d) {
-        return d;
-    })
-        .attr("value", function(d) {
+
+    function addOptions(select, data) {
+        select.selectAll("option").remove();
+        select.selectAll("option").data(data).enter().append("option").text(function(d) {
             return d;
-        });
-}
+        })
+            .attr("value", function(d) {
+                return d;
+            });
+    }
+
+});
