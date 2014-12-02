@@ -11,9 +11,17 @@ function timeline(selector) {
         maxDate = null,
         axis = null;
 
+    var eventClickHanders = [];
+
     var UNIT_HEIGHT = 10;
     var TIME_AXIS_HEIGHT = 50;
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
+
+    function onEventClicked(e) {
+        eventClickHanders.forEach(function(handler) {
+            handler(e);
+        });
+    }
 
     function calculateChartSize() {
         var w = (maxDate.getFullYear() - minDate.getFullYear() + 2) * 60 * zoomFactor; // 1 year = 30 px
@@ -131,6 +139,7 @@ function timeline(selector) {
 
             events.forEach(function (e) {
                 var cn = getClusterKeys(e);
+                e.setClickHandler(onEventClicked);
 
                 if (Object.prototype.toString.call(cn) === '[object Array]') {
                     if(cn.length==0) {
@@ -189,7 +198,12 @@ function timeline(selector) {
 
             drawAxisAndGridLines(scaleX, height, width);
             eventClusters.forEach(function(ec) { ec.draw(svg, tooltip, UNIT_HEIGHT); });
-            events.forEach(function(e) { e.drawEventOutline(svg, UNIT_HEIGHT); });
+
+            return timeline;
+        },
+
+        onEventClick: function(handler) {
+            eventClickHanders.push(handler);
 
             return timeline;
         },

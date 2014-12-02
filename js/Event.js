@@ -24,7 +24,10 @@ var Event = function() {
     this.depths = {};
     this.clicked = false;
     this.outline = null;
+    this.arrows = [];
     this.domElements = {};
+
+    this.clickHandler = function() {};
 }
 
 Event.prototype.setTitle = function(t) {
@@ -207,6 +210,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
         this.setDomElement(el, ec);
     }
 
+
+
     function onEventMouseover(e) {
         var dir = '';
         var offset = [0, 0];
@@ -242,79 +247,11 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     }
 
     function onEventClicked(e) {
-        e.clicked = !e.clicked;
-        e.outline.classed('clicked', e.clicked);
-		if (e.clicked) {
-			drawCausality(e);
-		} else {
-			removeCausality(e);
-		}
+        e.clickHandler(e);
     }
 
-	function removeCausality(e) {
-		svg.selectAll("#id" + e.eventId).remove();
-	}
-
-    function drawCausality(e) {
-        e.causedByEvents.forEach(function (ce) {
-			path = getCausalityPath(ce, e);
-			var marker = svg.append('defs').append('marker')
-				.attr('id', 'id' + e.eventId)
-				.attr('orient', 'auto')
-				.attr('markerWidth', '4')
-				.attr('markerHeight', '8')
-				.attr('refX', POINT_RADIUS)
-				.attr('refY', '4')
-				.attr('class', 'causedBy');
-			marker.append('path')
-				.attr('d', 'M0,0 V8 L4,4 Z')
-				.attr('class', 'causedByMarker')
-			svg.append('path')
-				.attr('d', path)
-				.attr('marker-end', 'url(#id' + e.eventId + ')')
-				.attr('id', 'id' + e.eventId)
-				.attr('class', 'causedBy');
-        });
-        e.causesEvents.forEach(function (ce) {
-			path = getCausalityPath(e, ce);
-			var marker = svg.append('defs').append('marker')
-				.attr('id', 'id' + e.eventId)
-				.attr('orient', 'auto')
-				.attr('markerWidth', '4')
-				.attr('markerHeight', '8')
-				.attr('refX', POINT_RADIUS)
-				.attr('refY', '4')
-				.attr('class', 'causes');
-			marker.append('path')
-				.attr('d', 'M0,0 V8 L4,4 Z')
-				.attr('class', 'causesMarker')
-
-			svg.append('path')
-				.attr('d', path)
-				.attr('marker-end', 'url(#id' + e.eventId + ')')
-				.attr('id', 'id' + e.eventId)
-				.attr('class', 'causes');
-        });
-    }
-
-	function getCausalityPath(causer, causee) {
-		var startx = causer.isExtendedEvent() ? causer.endx : causer.startx;
-		var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
-		var endx = causee.startx;
-		var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
-		return curveto(startx, starty, endx, endy, endx, starty);
-	}
-
-	function curveto(x1, y1, x2, y2, x, y) {
-		// x1, y1 is start
-		// x2, y2 is destination
-		// x, y is control point
-		return 'M '+x1+' '+y1+' Q' + x + ',' + y + ' ' + x2 + ',' + y2;
-	}
-
-	function lineto(x1, x2, y1, y2) {
-		return 'M '+x1+' '+y1+' L '+x2+' '+y2;
-	}
+    this.drawEventOutline(svg, UNIT_HEIGHT);
+    this.drawEventArrows(svg, POINT_RADIUS);
 }
 
 Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
@@ -438,6 +375,73 @@ Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {
 
 }
 
+Event.prototype.drawEventArrows = function(svg, POINT_RADIUS) {
+
+    this.causedByEvents.forEach(function (ce) {
+        var path = getCausalityPath(ce, this);
+        var marker = svg.append('defs').append('marker')
+            .attr('id', 'id' + this.eventId)
+            .attr('orient', 'auto')
+            .attr('markerWidth', '4')
+            .attr('markerHeight', '8')
+            .attr('refX', POINT_RADIUS)
+            .attr('refY', '4')
+            .attr('class', 'causedBy');
+        marker.append('path')
+            .attr('d', 'M0,0 V8 L4,4 Z')
+            .attr('class', 'causedByMarker')
+
+        var arrow = svg.append('path')
+            .attr('d', path)
+            .attr('marker-end', 'url(#id' + this.eventId + ')')
+            .attr('id', 'id' + this.eventId)
+            .attr('class', 'causedBy')
+            .style("visibility", "hidden");
+
+        this.arrows.push(arrow);
+    }, this);
+
+    this.causesEvents.forEach(function (ce) {
+        var path = getCausalityPath(this, ce);
+        var marker = svg.append('defs').append('marker')
+            .attr('id', 'id' + this.eventId)
+            .attr('orient', 'auto')
+            .attr('markerWidth', '4')
+            .attr('markerHeight', '8')
+            .attr('refX', POINT_RADIUS)
+            .attr('refY', '4')
+            .attr('class', 'causes');
+        marker.append('path')
+            .attr('d', 'M0,0 V8 L4,4 Z')
+            .attr('class', 'causesMarker')
+
+        var arrow = svg.append('path')
+            .attr('d', path)
+            .attr('marker-end', 'url(#id' + this.eventId + ')')
+            .attr('id', 'id' + this.eventId)
+            .attr('class', 'causes')
+            .style("visibility", "hidden");
+
+        this.arrows.push(arrow);
+    }, this);
+
+
+    function getCausalityPath(causer, causee) {
+        var startx = causer.isExtendedEvent() ? causer.endx : causer.startx;
+        var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
+        var endx = causee.startx;
+        var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
+        return curveto(startx, starty, endx, endy, endx, starty);
+    }
+
+    function curveto(x1, y1, x2, y2, x, y) {
+        // x1, y1 is start
+        // x2, y2 is destination
+        // x, y is control point
+        return 'M '+x1+' '+y1+' Q' + x + ',' + y + ' ' + x2 + ',' + y2;
+    }
+}
+
 Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
     this.outline.remove();
 
@@ -455,4 +459,43 @@ Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
     }
 
     this.drawEventOutline(svg, UNIT_HEIGHT);
+}
+
+Event.prototype.setClickHandler = function(handler) {
+    this.clickHandler = handler;
+}
+
+Event.prototype.isSelected = function() {
+    return this.clicked;
+}
+Event.prototype.selectEvent = function() {
+    if (!this.clicked) {
+        this.showArrows();
+    }
+    this.clicked = true;
+    this.outline.classed('clicked', true);
+}
+Event.prototype.toggleSelect = function() {
+    if(this.clicked) {
+        this.deselectEvent();
+    } else {
+        this.selectEvent();
+    }
+}
+Event.prototype.deselectEvent = function() {
+    if (this.clicked) {
+        this.hideArrows();
+    }
+    this.clicked = false;
+    this.outline.classed('clicked', false);
+}
+Event.prototype.showArrows = function() {
+    this.arrows.forEach(function(a) {
+        a.style("visibility", "visible");
+    });
+}
+Event.prototype.hideArrows = function() {
+    this.arrows.forEach(function(a) {
+        a.style("visibility", "hidden");
+    });
 }

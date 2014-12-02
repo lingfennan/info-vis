@@ -61,10 +61,15 @@ $(function() {
 
         var t = timeline('#timeline')
             .events(allEvents, function(e) { return e.eventChains; })
+            .onEventClick(onEventClicked)
             .draw();
 
 //        setTimeout(function() {t.zoom(2); }, 2000);
     });
+
+    function onEventClicked(e) {
+        e.toggleSelect();
+    }
 
 
     function addOptions(select, data) {
@@ -80,9 +85,7 @@ $(function() {
     $(window).resize(onresize);
 
     function onresize() {
-        var w = $('#mainbar').width();
-        console.log(w);
-        $('#timeline').css('padding-left', w);
+        $('#timeline').css('padding-left', $('#mainbar').width()+30);
     }
     onresize();
 });
