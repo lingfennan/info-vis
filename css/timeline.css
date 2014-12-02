@@ -1,0 +1,86 @@
+
+g.axis line {
+    stroke-width: 1px;
+    stroke: #ccc;
+    stroke-dasharray: 5 5;
+}
+
+g.axis .scale-bbox { stroke: none; fill: #ccc; }
+
+.tooltip {
+    width: auto;
+    position: absolute;
+    visibility: hidden;
+    color : black;
+    cursor:default;
+    background-color: #FFFFEE;
+    border: 1px solid;
+    padding: 4px;
+    shape-rendering: crispEdges;
+    pointer-events: none;
+}
+
+.cluster-g .cluster-rect {
+    fill: #f7f7f7;
+    stroke: #B2DCED;
+    stroke-width: 1px;
+}
+
+.cluster-g.hovered .cluster-rect {
+    stroke-width: 1px;
+    stroke: #51C1ED;
+}
+
+.point-event, .extended-event {
+    cursor: pointer;
+}
+
+.cluster-g .cluster-title {
+    opacity: 0;
+    font-size: 14px;
+}
+
+.connector {
+    fill: none;
+    stroke-width: 1px;
+    stroke: black;
+    opacity: 0.1;
+}
+.connector.single-cluster {
+    opacity: 0;
+}
+.connector.clicked {
+    stroke-width: 2px;
+    stroke: #555;
+}
+
+path.causedBy,
+path.causes {
+    fill: none;
+    stroke-width: 2px;
+    stroke: blue;
+    opacity: 1;
+}
+
+path.causedByMarker,
+path.causesMarker {
+    fill: blue;
+}
+
+.civil-unrest { fill: #E66000; }
+.migration { fill:#969474; }
+.war { fill:#E82102; }
+.diplomacy { fill:#48D97F; }
+.antisemetism { fill:#F53D71; }
+.armstice { fill: #E600E2; }
+.uncategorized { fill: #777; }
+.org-founded { fill: #00B0B3; }
+.political { fill: #0011FF; }
+
+g.xaxis path,
+g.xaxis line {
+    fill: none;
+    stroke: black;
+    shape-rendering: crispEdges;
+}
+
