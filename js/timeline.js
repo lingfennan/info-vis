@@ -33,16 +33,9 @@ function timeline(selector) {
     }
 
     function createTooltip() {
-        var format = d3.time.format("%e %b %Y");
         return d3.tip()
             .attr('class', 'd3-tip')
-            .html(function (e) {
-                var datestring = format(e.startDate);
-                if (e.isExtendedEvent()) {
-                    datestring += ' - ' + format(e.endDate);
-                }
-                return e.title + '<br><span class="dates">' + datestring + '</span>';
-            });
+            .html(function (e) { return e.title + '<br><span class="dates">' + e.getDurationString() + '</span>'; });
     }
 
     function calculateXCoords(scaleX) {

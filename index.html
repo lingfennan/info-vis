@@ -12,6 +12,7 @@
 
     <script src="js/Event.js"></script>
     <script src="js/EventCluster.js"></script>
+    <script src="js/EventDisplay.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/main.js"></script>
 
@@ -26,9 +27,9 @@
     <div class="row">
         <div class="row" style="margin-bottom: 10px;">
             <div class="col-md-3" id="mainbar">
-                <div class="intro">
+                <div id="intro">
                     <h1>The History of Israel-Palestine</h1>
-                    <h2>An interactive story</h2>
+                    <h3>An interactive story</h3>
 
                     <p>Public interest in the conflict between Israel and Palestine has recently been revived by renewed violence.
                     News coverage of the conflict today does not provide any context about the roots of this conflict.
@@ -39,10 +40,25 @@
                     It is a struggle between two nationalist movements that developed in opposition to each other in the pre-World War 1 era.
                     Both nationalisms were shaped and influenced by variety of events in many different was, over the course of about 50 years.</p>
 
-                    <p>Click on any of the events in the timeline to get started.</p>
-
                     <br/>
-                    <p style="text-align: center"><button class="btn btn-success">Get Started</button></p>
+                    <p style="text-align: center"><button id='start-exploring' class="btn btn-success">Start Exploring</button></p>
+                </div>
+                <div id="event-details" style="display: none">
+
+                </div>
+                <div id="no-event-placeholder" style="display: none">
+                    <h3>Click on any of the events in the timeline.</h3>
+                    <p>Arrows are shown where one event causes another to happen in some way.</p>
+                </div>
+
+                <div id="event-details-template" class='event-detail-holder' style="display: none;">
+                    <img class="close-button" src="img/close.png"/>
+                    <h2 class="event-title"></h2>
+                    <h3 class="event-duration"></h3>
+                    <p class="event-narrative"></p>
+                    <h3>References</h3>
+                    <ul class="event-references">
+                    </ul>
                 </div>
             </div>
             <div class="col-md-3"></div>

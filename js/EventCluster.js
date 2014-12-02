@@ -53,13 +53,11 @@ EventCluster.prototype.draw = function(svg, tooltip, UNIT_HEIGHT) {
     }
 
     this.g.on('mouseenter', function() {
-        me.g.classed('hovered', true);
-        if(this.title != '') { me.titleElement.transition().ease('linear').duration(200).style('opacity', 1); }
+        if(me.title != '') { me.titleElement.transition().ease('linear').duration(200).style('opacity', 1); }
     })
-        .on('mouseleave', function() {
-            me.g.classed('hovered', false);
-            if(this.title != '') { me.titleElement.transition().duration(200).style('opacity', 0); }
-        });
+    .on('mouseleave', function() {
+        if(me.title != '') { me.titleElement.transition().duration(200).style('opacity', 0); }
+    });
 
     this.events.forEach(function(e) { e.draw(svg, this, UNIT_HEIGHT, tooltip); }, this);
 }

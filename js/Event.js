@@ -30,6 +30,15 @@ var Event = function() {
     this.clickHandler = function() {};
 }
 
+Event.prototype.getDurationString = function() {
+    var format = d3.time.format("%e %b %Y");
+    var datestring = format(this.startDate);
+    if (this.isExtendedEvent()) {
+        datestring += ' to ' + format(this.endDate);
+    }
+    return datestring;
+};
+
 Event.prototype.setTitle = function(t) {
     this.title = t;
 }
@@ -120,7 +129,7 @@ Event.prototype.setReferences = function(refs) {
     }
     refs = refs.replace('\\,', 'çççç').split(',');
     refs.forEach(function (r, i) {
-        refs[i] = r.replace('çççç', ',');
+        refs[i] = r.replace('çççç', ',').trim();
     })
     this.references = refs;
 }
@@ -232,6 +241,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
             }
         });
     }
+
+    this.onEventMouseout = onEventMouseout; /// HACK!
 
     function onEventMouseout(e) {
         tooltip.hide();
@@ -489,6 +500,7 @@ Event.prototype.deselectEvent = function() {
     }
     this.clicked = false;
     this.outline.classed('clicked', false);
+    this.onEventMouseout(this);
 }
 Event.prototype.showArrows = function() {
     this.arrows.forEach(function(a) {

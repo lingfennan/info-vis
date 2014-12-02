@@ -13,10 +13,23 @@ body {
     padding: 10px 20px 10px 20px;
     background-color: rgba(255,255,255,0.8);
     z-index: 1;
+    overflow-y: scroll;
 }
-#mainbar .intro h1 { font-size: 36pt; font-weight: 300; margin-top: 10px; margin-bottom: 10px; }
-#mainbar .intro h2 { font-weight: 300; margin-top: 0; margin-bottom: 30px; color: #aaa; }
-#mainbar .intro p { text-align: justify; margin-bottom: 30px; }
+#mainbar h1 { font-weight: 300; margin-top: 10px; margin-bottom: 10px; font-size: 36pt; }
+#mainbar h2 { font-weight: 300; margin-top: 10px; margin-bottom: 10px; }
+#mainbar h3 { font-weight: 300; margin-top: 0;    margin-bottom: 10px; color: #aaa; }
+#mainbar p { text-align: justify; margin: 30px 0; }
+#mainbar ul { list-style-type: none; padding-left: 20px; font-size: 13px; }
+#mainbar ul li { padding-bottom: 10px; word-wrap: break-word; }
+
+#mainbar .event-detail-holder { position: relative; }
+#mainbar .event-detail-holder:not(:first-child) { border-top: 1px solid #ccc; }
+#mainbar .event-detail-holder .close-button { right: 0; top: 14px; opacity: 0.3; position: absolute; cursor: pointer; }
+#mainbar .event-detail-holder:first-child .close-button { top: 4px; }
+#mainbar .event-detail-holder .close-button:hover { opacity: 0.8; }
+#mainbar .event-detail-holder h2 { padding-right: 30px; }
+
+#mainbar #no-event-placeholder { margin-top: 100px; }
 
 #controls { margin-top: 20px; padding-left: 40px; }
 #controls ul.options { list-style-type: none; padding-left: 0;  font-size: 12px; }
