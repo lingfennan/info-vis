@@ -113,7 +113,7 @@ function timeline(selector) {
             .text(function(i) { return i.getFullYear(); });
     }
 
-    return timeline = {
+    var timeline = {
 
         events: function (items, getClusterKeys) {
 
@@ -226,9 +226,6 @@ function timeline(selector) {
             axis.select('.scale-bbox').attr('width', size.width);
         }
     };
-}
 
-$.extend($.easing,{easeInOutCubic: function (x, t, b, c, d) {
-    if ((t/=d/2) < 1) return c/2*t*t*t + b;
-    return c/2*((t-=2)*t*t + 2) + b;
-}});
+    return timeline;
+}

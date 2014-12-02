@@ -77,4 +77,12 @@ $(function() {
             });
     }
 
+    $(window).resize(onresize);
+
+    function onresize() {
+        var w = $('#mainbar').width();
+        console.log(w);
+        $('#timeline').css('padding-left', w);
+    }
+    onresize();
 });

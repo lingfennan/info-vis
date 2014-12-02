@@ -5,114 +5,56 @@ body {
     font-weight: 300;
 }
 
-h1 {
-    text-align: center;
-    color: #980002 ;
-    font-size: 24pt;
+#mainbar {
+    border-right: 1px solid #777;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    padding: 10px 10px 10px 20px;
+    background-color: rgba(255,255,255,0.8);
+    z-index: 1;
+}
+#mainbar h1 { font-size: 36pt; font-weight: 300; margin-top: 10px; }
+
+#controls { margin-top: 20px; padding-left: 40px; }
+#controls ul.options { list-style-type: none; padding-left: 0;  font-size: 12px; }
+#controls label { font-weight: normal; }
+#controls ul.options li { float: left; width: 180px; }
+#controls ul.options li.separator { clear: both; float: left; width: 100%; border-bottom: 1px solid #ddd; margin: 3px 0 5px 0; }
+#controls ul.dropdown-menu { padding: 10px; margin: -5px 0 0 10px; }
+#controls ul.dropdown-menu::before {
+    position: absolute;
+    top: -10px;
+    left: 10px;
+    display: inline-block;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid #ccc;
+    border-left: 10px solid transparent;
+    content: '';
+}
+#controls ul.dropdown-menu::after {
+    position: absolute;
+    top: -9px;
+    left: 10px;
+    display: inline-block;
+    border-right: 10px solid transparent;
+    border-bottom: 10px solid white;
+    border-left: 10px solid transparent;
+    content: '';
 }
 
-select {
-    color: black;
-    /* This is a single-line comment */
-    text-align: center;
-    margin: 100;
-    display: table-cell;
-    width: 100;
+#controls input[type=checkbox], #controls input[type=radio] {
+    width: 20px;
+    position: relative;
+    top: -1px;
+    *overflow: hidden;
 }
+
 
 #timeline {
+    padding-left: 200px;
     overflow-x: scroll;
     overflow-y: hidden;
     position: relative;
+    padding-right: 0;
 }
-
-g.axis line {
-    stroke-width: 1px;
-    stroke: #ccc;
-    stroke-dasharray: 5 5;
-}
-
-g.axis .scale-bbox { stroke: none; fill: #ccc; }
-
-.tooltip {
-    width: auto;
-    position: absolute;
-    visibility: hidden;
-    color : black;
-    cursor:default;
-    background-color: #FFFFEE;
-    border: 1px solid;
-    padding: 4px;
-    shape-rendering: crispEdges;
-    pointer-events: none;
-}
-
-.cluster-g .cluster-rect {
-    fill: #f7f7f7;
-    stroke: #B2DCED;
-    stroke-width: 1px;
-}
-
-.cluster-g.hovered .cluster-rect {
-    stroke-width: 1px;
-    stroke: #51C1ED;
-}
-
-.point-event, .extended-event {
-    cursor: pointer;
-}
-
-.cluster-g .cluster-title {
-    opacity: 0;
-    font-size: 14px;
-}
-
-.connector {
-    fill: none;
-    stroke-width: 1px;
-    stroke: black;
-    opacity: 0.1;
-}
-.connector.single-cluster {
-    opacity: 0;
-}
-.connector.clicked {
-    stroke-width: 2px;
-    stroke: #555;
-}
-
-path.causedBy,
-path.causes {
-    fill: none;
-    stroke-width: 2px;
-    stroke: blue;
-    opacity: 1;
-}
-
-path.causedByMarker,
-path.causesMarker {
-    fill: blue;
-}
-
-.civil-unrest { fill: #E66000; }
-.migration { fill:#969474; }
-.war { fill:#E82102; }
-.diplomacy { fill:#48D97F; }
-.antisemetism { fill:#F53D71; }
-.armstice { fill: #E600E2; }
-.uncategorized { fill: #777; }
-.org-founded { fill: #00B0B3; }
-.political { fill: #0011FF; }
-
-g.xaxis path,
-g.xaxis line {
-    fill: none;
-    stroke: black;
-    shape-rendering: crispEdges;
-}
-
-button {
-    display: table-cell;
-    width: 150;
-}
-

@@ -8,37 +8,81 @@
     <script src="lib/d3.js"></script>
     <script src="lib/d3.tip.js"></script>
     <script src="lib/jquery-2.1.1.min.js"></script>
+    <script src="lib/bootstrap.min.js"></script>
+
     <script src="js/Event.js"></script>
     <script src="js/EventCluster.js"></script>
     <script src="js/timeline.js"></script>
-
     <script src="js/main.js"></script>
-    <link href="css/main.css" rel="stylesheet" type="text/css" />
+
+    <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="css/d3.tip.css" rel="stylesheet" type="text/css" />
-
-
+    <link href="css/main.css" rel="stylesheet" type="text/css" />
+    <link href="css/timeline.css" rel="stylesheet" type="text/css" />
 </head>
 
 <body><div class="container-fluid">
 
     <div class="row">
-        <div class="col-md-3">
-            <h1>History of Israel-Palestine's Conflict</h1>
+        <div class="row" style="margin-bottom: 10px;">
+            <div class="col-md-3" id="mainbar">
+                <h1>The     History of Israel-Palestine</h1>
+            </div>
+            <div class="col-md-3"></div>
+            <div class="col-md-9" id="controls">
+                <div class="row">
+                    <div class="col-md-4 dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown">
+                            <h3>Event Types <span class="caret"></span></h3>
+                            <p>Showing: <span class="selected-topion">all events</span></p>
+                        </div>
+                        <ul class="options dropdown-menu">
+                            <li><label><input checked type="checkbox" name="all"/><span>All Event Types</span></label></li>
+                            <li class="separator"></li>
+                            <li style="clear:both"><label><input type="checkbox" name="armstice"/><span>Armstice</span></label></li>
+                            <li><label><input type="checkbox" name="civil-unrest"/><span>Civil Unrest</span></label></li>
+                            <li><label><input type="checkbox" name="political-development"/><span>Political Development</span></label></li>
+                            <li><label><input type="checkbox" name="migration"/><span>Migration</span></label></li>
+                            <li><label><input type="checkbox" name="antisemetism"/><span>antisemetism</span></label></li>
+                            <li><label><input type="checkbox" name="org-founded"/><span>Organization Founded</span></label></li>
+                            <li><label><input type="checkbox" name="war"/><span>War</span></label></li>
+                            <li><label><input type="checkbox" name="diplomacy"/><span>Diplomacy</span></label></li>
+                            <li><label><input type="checkbox" name="uncategorized"/><span>Uncategorized</span></label></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown">
+                            <h3>Persons <span class="caret"></span></h3>
+                            <p>Showing: <span class="selected-topion">all events</span></p>
+                        </div>
+                        <ul class="options dropdown-menu">
+                            <li><label><input checked type="checkbox" name="all"/><span>Events involving any person</span></label></li>
+                            <li class="separator"></li>
+                            <li><label><input type="checkbox"/><span>King Abdullah</span></label></li>
+                            <li><label><input type="checkbox"/><span>Baron de Rothschild</span></label></li>
+                            <li><label><input type="checkbox"/><span>David Ben-Gurion</span></label></li>
+                            <li><label><input type="checkbox"/><span>Theodore Herzl</span></label></li>
+                            <li><label><input type="checkbox"/><span>Alfred Dreyfus</span></label></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-4 dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown">
+                            <h3>Event Grouping <span class="caret"></span></h3>
+                            <p>Grouped by: <span class="selected-topion">event chains</span></p>
+                        </div>
+                        <ul class="options dropdown-menu" role="menu">
+                            <li><label><input checked type="radio" name="groupby"/><span>Event Chains</span></label></li>
+                            <li style="clear:left"><label><input type="radio" name="groupby"/><span>Event Chains</span></label></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="col-md-9">
-            <div class="row"><div class="col-md-12">
-                <label for="showing">Showing: </label>
-                <select id="showing" onchange="updateSelectedDataset()">
-                </select>
-                <label for="cluster">Events clustered by: </label>
-                <select id="cluster" onchange="updateSelectedDataset()">
-                    <!--option>Please Select</option>-->
-                </select>
-            </div></div>
-            <div class="row"><div class="col-md-12" id='timeline'>
-            </div></div>
+        <div class="row">
+            <div class="col-md-12" id="timeline"></div>
         </div>
     </div>
+
 </div></body>
 
 </html>
