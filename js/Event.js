@@ -183,8 +183,15 @@ Event.prototype.getDomElement = function(ec) {
     }
 }
 
+function getRadius(e, UNIT_HEIGHT) {
+    var a = UNIT_HEIGHT/2 - 3;
+    var b = UNIT_HEIGHT/2+1;
+    var c = e.causedByEvents.length + e.causesEvents.length;
+    return ( (9-c)*a + c*b ) / 9; // HACK! I know max cardinality is 9, min is 0 but this should really be coming from timeline
+}
 Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
-    var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
+
+    var POINT_RADIUS = getRadius(this, UNIT_HEIGHT);
 
     var eventTypeClassMap = {
         'diplomacy': 'diplomacy',
@@ -241,7 +248,9 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
         } else {
             dir = 'e'; offset = [0, 10];
         }
-        tooltip.offset(offset).show(e, dir);
+
+        var target = (d3.event != null) ? d3.event.target : e.getDomElement(e.parentClusters[0])[0][0];
+        tooltip.offset(offset).show(e, dir, target);
 
         e.outline.transition().duration(200).style('opacity', 1);
         e.parentClusters.forEach(function(pc) {
@@ -269,6 +278,7 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
         e.clickHandler(e);
     }
 
+    this.onEventMouseover = onEventMouseover; /// HACK!
     this.onEventMouseout = onEventMouseout; /// HACK!
     this.onEventClicked = onEventClicked; /// HACK!
 
@@ -598,7 +608,6 @@ Event.prototype.findMatches = function(terms) {
             matchIndex != -1;
             lastMatch = matchIndex, matchIndex = lowerText.indexOf(t, lastMatch+1)) {
 
-            console.log('here')
             var start = (matchIndex - 20) > 0 ? (matchIndex - 20) : 0;
             var end = (matchIndex + t.length + 20) <= lowerText.length ? (matchIndex + t.length + 20) : lowerText.length;
             var extract = '... ' + text.substring(start, end) + ' ...';

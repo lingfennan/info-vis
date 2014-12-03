@@ -77,6 +77,11 @@ path.causesMarker {
 .org-founded { fill: #00B0B3; }
 .political { fill: #0011FF; }
 
+#legend { position: absolute; top: 200px; padding-left: 100px; }
+#legend ul { list-style-type: none; }
+#legend ul li { padding-bottom: 5px; }
+#legend svg { height: 10px; width: 18px; }
+
 g.xaxis path,
 g.xaxis line {
     fill: none;

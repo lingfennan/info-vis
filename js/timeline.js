@@ -51,7 +51,6 @@ function timeline(selector) {
                 if(searching && e.matches.length > 0) {
                     tip += '<br><b>Search Results</b><br/>';
                     e.matches.forEach(function (m) {
-                        console.log(m);
                         tip += "<span class='match'>"+m+"</span><br/>";
                     })
                 }

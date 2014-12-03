@@ -17,6 +17,12 @@ function EventDisplay(e, handler) {
     $mb.animate({ scrollTop: $mb.prop('scrollHeight') });
 
     this.$el = $t;
+
+    $t.hover(function() {
+        e.onEventMouseover(e);
+    }, function () {
+        e.onEventMouseout(e);
+    });
 }
 
 EventDisplay.prototype.remove = function() {

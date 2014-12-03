@@ -81,8 +81,6 @@
                             <p>Grouped by: <span class="selected-vals">event chains</span></p>
                         </div>
                         <ul id='cluster-by-selector' class="options dropdown-menu" role="menu">
-                            <li><label><input checked type="radio" name="groupby"/><span>Event Chains</span></label></li>
-                            <li style="clear:left"><label><input type="radio" name="groupby"/><span>Event Chains</span></label></li>
                         </ul>
                     </div>
                     <div class="col-md-2 dropdown">
@@ -119,7 +117,25 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-12" id="timeline"></div>
+            <div class="col-md-12" id="timeline">
+                <div id="legend">
+                    <h4>Colours represent type of event</h4>
+                    <ul>
+                        <li><svg><circle r="5" cx="5" cy="5" class="diplomacy"></circle></svg><span>Diplomacy</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="revolution"></circle></svg><span>Revolution</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="political"></circle></svg><span>Political Development</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="migration"></circle></svg><span>Migration</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="antisemetism"></circle></svg><span>Antisemetism</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="org-founded"></circle></svg><span>Organization founded</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="war"></circle></svg><span>War</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="civil-unrest"></circle></svg><span>Civil Unrest</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="peace-process"></circle></svg><span>Peace Process</span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="uncategorized"></circle></svg><span>Uncategorized </span></li>
+                        <li><svg><circle r="5" cx="5" cy="5" class="armstice"></circle></svg><span>Armstice</span></li>
+                    </ul>
+                    <h5>More significant events are larger/thicker</h5>
+                </div>
+            </div>
         </div>
     </div>
 

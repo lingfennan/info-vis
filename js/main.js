@@ -95,4 +95,6 @@ $(function() {
         $('#timeline').animate({'padding-left': $('#mainbar').width()+30});
     }
     setTimeout(onresize, 200);
+
+
 });
