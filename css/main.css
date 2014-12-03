@@ -15,6 +15,7 @@ body {
     z-index: 1;
     overflow-y: scroll;
 }
+#mainbar .highlight { background-color: #ff7; }
 #mainbar h1 { font-weight: 300; margin-top: 10px; margin-bottom: 10px; font-size: 36pt; }
 #mainbar h2 { font-weight: 300; margin-top: 10px; margin-bottom: 10px; }
 #mainbar h3 { font-weight: 300; margin-top: 0;    margin-bottom: 10px; color: #aaa; }
@@ -39,7 +40,7 @@ body {
 
 #control #search-bar input.hilite { background-color: #ffc; }
 #controls .dropdown-toggle { cursor: pointer; }
-#controls .dropdown-toggle.disabled { cursor: default; color: #aaa; }
+#controls .dropdown-toggle.disabled { cursor: default; color: #ccc; }
 #controls .dropdown-toggle:not(.disabled) p.hilite { background-color: #ffc; padding-left: 5px; padding-right: 5px; }
 #controls .dropdown-toggle p.disabled { background-color: #eee; padding-left: 5px; padding-right: 5px; }
 #controls ul.dropdown-menu { padding: 10px; margin: -5px 0 0 10px; }

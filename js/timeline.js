@@ -23,6 +23,7 @@ function timeline(selector) {
 
 
     var eventClickHanders = [];
+    var onSearchCb = function() {};
 
     var UNIT_HEIGHT = 10;
     var TIME_AXIS_HEIGHT = 50;
@@ -160,6 +161,7 @@ function timeline(selector) {
     function updateEventFilter() {
         if(searching) { return; }
 
+
         events.forEach(function(e) {
             if(matchesFilter(e)) {
                 e.show();
@@ -187,8 +189,8 @@ function timeline(selector) {
         // todo - update clustering of events
     }
 
-    var searching = true;
     function applySearch(terms) {
+        onSearchCb(terms);
         evTypeSelector.disable();
         personSelector.disable();
         orgsSelector.disable();
@@ -205,6 +207,7 @@ function timeline(selector) {
     }
 
     function clearSearch() {
+        onSearchCb(null);
         evTypeSelector.enable();
         personSelector.enable();
         orgsSelector.enable();
@@ -363,6 +366,11 @@ function timeline(selector) {
             });
 
             axis.select('.scale-bbox').attr('width', size.width);
+        },
+
+        onSearch: function(cb) {
+            onSearchCb = cb;
+            return timeline;
         }
     };
 

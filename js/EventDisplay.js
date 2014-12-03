@@ -30,6 +30,17 @@ EventDisplay.prototype.remove = function() {
     $el.slideUp('fast', function() { $el.remove(); });
 }
 
+EventDisplay.prototype.highlight = function(terms) {
+    terms.match(/\S+/g).forEach(function(t) {
+        this.$el.find('.event-title').highlight(t);
+        this.$el.find('.event-narrative').highlight(t);
+    }, this);
+}
+EventDisplay.prototype.clearHighlight = function() {
+    this.$el.find('.event-title').removeHighlight();
+    this.$el.find('.event-narrative').removeHighlight();
+}
+
 function isUrl(s) {
     return s.indexOf("http://") == 0 || s.indexOf("https://")==0;
 }

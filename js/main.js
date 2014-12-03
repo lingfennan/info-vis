@@ -46,6 +46,7 @@ $(function() {
         var t = timeline('#timeline')
             .events(allEvents, function(e) { return e.eventChains; })
             .onEventClick(onEventClicked)
+            .onSearch(onSearch)
             .draw();
     });
 
@@ -69,9 +70,21 @@ $(function() {
                 });
             }
             displays[e.eventId] = new EventDisplay(e, closeEventDisplay);
+            if(searchTerms != null) { displays[e.eventId].highlight(searchTerms); }
             eventCount++;
         } else {
             closeEventDisplay(e);
+        }
+    }
+
+    var searchTerms = null;
+    function onSearch(terms) {
+        if(terms==null) {
+            searchTerms = null;
+            $.each(displays, function(i,d) { d.clearHighlight(); })
+        } else {
+            searchTerms = terms;
+            $.each(displays, function(i,d) { d.highlight(terms); })
         }
     }
 
