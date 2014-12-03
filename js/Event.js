@@ -27,6 +27,7 @@ var Event = function() {
     this.outline = null;
     this.arrows = [];
     this.domElements = {};
+    this.matches = [];
 
     this.clickHandler = function() {};
 }
@@ -571,4 +572,38 @@ Event.prototype.hide = function() {
         this.onEventClicked(this);
     }
     this.hidden = true;
+}
+Event.prototype.findMatches = function(terms) {
+    terms = terms.match(/\S+/g);
+    if(terms.length==0) return false;
+    this.matches = [];
+
+    terms.forEach(function(t) {
+        findMatches(this.narrative, t, this.matches);
+    }, this);
+
+    var titleMatch = false;
+    terms.forEach(function(t) {
+        if(this.title.toLowerCase().indexOf(t.toLowerCase()) > -1) {
+            titleMatch = true;
+        }
+    }, this);
+
+    return titleMatch || this.matches.length > 0;
+
+    function findMatches(text, t, m) {
+        var lowerText = text.toLowerCase();
+        t = t.toLowerCase();
+        for(var lastMatch = -1, matchIndex = lowerText.indexOf(t);
+            matchIndex != -1;
+            lastMatch = matchIndex, matchIndex = lowerText.indexOf(t, lastMatch+1)) {
+
+            console.log('here')
+            var start = (matchIndex - 20) > 0 ? (matchIndex - 20) : 0;
+            var end = (matchIndex + t.length + 20) <= lowerText.length ? (matchIndex + t.length + 20) : lowerText.length;
+            var extract = '... ' + text.substring(start, end) + ' ...';
+
+            m.push(extract);
+        }
+    }
 }

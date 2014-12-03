@@ -15,6 +15,8 @@
     <script src="js/EventDisplay.js"></script>
     <script src="js/timeline.js"></script>
     <script src="js/MultiselectDropdown.js"></script>
+    <script src="js/SingleselectDropdown.js"></script>
+    <script src="js/SearchBar.js"></script>
     <script src="js/main.js"></script>
 
     <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
@@ -70,8 +72,18 @@
                         <h4>Search</h4>
                         <div id='search-bar' class="btn-group">
                             <input type="search" class="form-control">
-                            <span class="clear-button glyphicon glyphicon-remove"></span>
+                            <span class="clear-button glyphicon glyphicon-remove" style="display: none; cursor: pointer"></span>
                         </div>
+                    </div>
+                    <div class="col-md-2 dropdown">
+                        <div class="dropdown-toggle" data-toggle="dropdown">
+                            <h4>Event Grouping <span class="caret"></span></h4>
+                            <p>Grouped by: <span class="selected-vals">event chains</span></p>
+                        </div>
+                        <ul id='cluster-by-selector' class="options dropdown-menu" role="menu">
+                            <li><label><input checked type="radio" name="groupby"/><span>Event Chains</span></label></li>
+                            <li style="clear:left"><label><input type="radio" name="groupby"/><span>Event Chains</span></label></li>
+                        </ul>
                     </div>
                     <div class="col-md-2 dropdown">
                         <div class="dropdown-toggle" data-toggle="dropdown">
@@ -99,18 +111,8 @@
                             <p>Showing: <span class="selected-vals">all organizations</span></p>
                         </div>
                         <ul class="options dropdown-menu multiselect-dropdown" id="orgs-selector">
-                            <li><label><input checked class='all-vals' type="checkbox" value="all"/><span>Events involving any person</span></label></li>
+                            <li><label><input checked class='all-vals' type="checkbox" value="all"/><span>Events involving any organization</span></label></li>
                             <li class="separator"></li>
-                        </ul>
-                    </div>
-                    <div class="col-md-2 dropdown">
-                        <div class="dropdown-toggle" data-toggle="dropdown">
-                            <h4>Event Grouping <span class="caret"></span></h4>
-                            <p>Grouped by: <span class="selected-topion">event chains</span></p>
-                        </div>
-                        <ul class="options dropdown-menu" role="menu">
-                            <li><label><input checked type="radio" name="groupby"/><span>Event Chains</span></label></li>
-                            <li style="clear:left"><label><input type="radio" name="groupby"/><span>Event Chains</span></label></li>
                         </ul>
                     </div>
                 </div>

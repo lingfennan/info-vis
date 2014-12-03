@@ -14,7 +14,13 @@ function timeline(selector) {
         maxDate = null,
         axis = null;
 
-    var clusterBy = ['Event Chains', 'Type', "Orgs Involved"];
+    var clusterBy = ['event-chains', 'event-type', "orgs"];
+    var clusterByTitleMap = {
+        'event-chains': 'Chain of events',
+        'event-type': 'Event Type',
+        'orgs': 'Organizations'
+    }
+
 
     var eventClickHanders = [];
 
@@ -40,7 +46,17 @@ function timeline(selector) {
     function createTooltip() {
         return d3.tip()
             .attr('class', 'd3-tip')
-            .html(function (e) { return e.title + '<br><span class="dates">' + e.getDurationString() + '</span>'; });
+            .html(function (e) {
+                var tip = e.title + '<br><span class="dates">' + e.getDurationString() + '</span>';
+                if(searching && e.matches.length > 0) {
+                    tip += '<br><b>Search Results</b><br/>';
+                    e.matches.forEach(function (m) {
+                        console.log(m);
+                        tip += "<span class='match'>"+m+"</span><br/>";
+                    })
+                }
+                return  tip;
+            });
     }
 
     function calculateXCoords(scaleX) {
@@ -119,9 +135,16 @@ function timeline(selector) {
             .text(function(i) { return i.getFullYear(); });
     }
 
+    var evTypeSelector = null;
+    var personSelector = null;
+    var orgsSelector = null;
+    var clusterSelector = null;
+    var searchBar = null;
+
     var showingEventTypes = 'all';
     var showingPersons = 'all';
     var showingOrganizations = 'all';
+    var searching = false;
 
     function eventTypeSelectionUpdate(ets) {
         showingEventTypes = ets;
@@ -136,13 +159,13 @@ function timeline(selector) {
         updateEventFilter();
     }
     function updateEventFilter() {
+        if(searching) { return; }
+
         events.forEach(function(e) {
             if(matchesFilter(e)) {
                 e.show();
-//                console.log('showing '+e.title + ' ' + e.getDurationString());
             } else {
                 e.hide();
-//                console.log('hiding '+e.title + ' ' + e.getDurationString());
             }
         });
     }
@@ -159,6 +182,39 @@ function timeline(selector) {
             if(arr2.indexOf(a) >= 0) return true;
         }
         return false;
+    }
+
+    function clusterByUpdate(cb) {
+        // todo - update clustering of events
+    }
+
+    var searching = true;
+    function applySearch(terms) {
+        evTypeSelector.disable();
+        personSelector.disable();
+        orgsSelector.disable();
+        clusterSelector.disable();
+        searching = true;
+
+        events.forEach(function(e) {
+            if(e.findMatches(terms)) {
+                e.show();
+            } else {
+                e.hide();
+            }
+        });
+    }
+
+    function clearSearch() {
+        evTypeSelector.enable();
+        personSelector.enable();
+        orgsSelector.enable();
+        clusterSelector.enable();
+        searching = false;
+        events.forEach(function (e) {
+            e.matches = [];
+        });
+        updateEventFilter();
     }
 
     var timeline = {
@@ -215,9 +271,12 @@ function timeline(selector) {
                 'armstice': 'Armstice'
             };
 
-            MultiselectDropdown('#event-types-selector', eventTypes, function(et) { return eventTypeDescMap[et]; }, eventTypeSelectionUpdate, 'all event types');
-            MultiselectDropdown('#persons-selector', persons, null, personSelectionUpdate, 'all persons');
-            MultiselectDropdown('#orgs-selector', organizations, null, orgSelectionUpdate, 'all organizations');
+            evTypeSelector = new MultiselectDropdown('#event-types-selector', eventTypes, function(et) { return eventTypeDescMap[et]; }, eventTypeSelectionUpdate, 'all event types');
+            personSelector = new MultiselectDropdown('#persons-selector', persons, null, personSelectionUpdate, 'all persons');
+            orgsSelector = new MultiselectDropdown('#orgs-selector', organizations, null, orgSelectionUpdate, 'all organizations');
+
+            clusterSelector = new SingleselectDropdown('#cluster-by-selector', 'cluster-by', clusterBy, clusterByTitleMap, clusterByUpdate);
+            searchBar = new SearchBar(applySearch, clearSearch);
 
             for (var clusterName in clusterMap) {
                 if (!clusterMap.hasOwnProperty(clusterName)) {

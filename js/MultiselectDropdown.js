@@ -18,6 +18,7 @@ function MultiselectDropdown(sel, values, titlemap, selectCb, allValsString) {
 
     $container.find('input').click(function(e) {
         e.stopPropagation();
+        if($container.hasClass('disabled')) { return false; }
 
         var $me = $(this).closest('li').find('input');
 
@@ -57,4 +58,15 @@ function MultiselectDropdown(sel, values, titlemap, selectCb, allValsString) {
             $sel.closest('p').addClass('hilite');
         }
     }
+
+    this.$container = $container;
+    this.$sel = $sel;
+}
+MultiselectDropdown.prototype.disable = function() {
+    this.$sel.closest('.dropdown-toggle').addClass('disabled');
+    this.$container.addClass('disabled');
+}
+MultiselectDropdown.prototype.enable = function() {
+    this.$sel.closest('.dropdown-toggle').removeClass('disabled');
+    this.$container.removeClass('disabled');
 }

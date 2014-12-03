@@ -36,8 +36,15 @@ body {
 #controls label { font-weight: normal; }
 #controls ul.options li { float: left; width: 180px; }
 #controls ul.options li.separator { clear: both; float: left; width: 100%; border-bottom: 1px solid #ddd; margin: 3px 0 5px 0; }
-#controls .dropdown-toggle p.hilite { background-color: #ff7 }
+
+#control #search-bar input.hilite { background-color: #ffc; }
+#controls .dropdown-toggle { cursor: pointer; }
+#controls .dropdown-toggle.disabled { cursor: default; color: #aaa; }
+#controls .dropdown-toggle:not(.disabled) p.hilite { background-color: #ffc; padding-left: 5px; padding-right: 5px; }
+#controls .dropdown-toggle p.disabled { background-color: #eee; padding-left: 5px; padding-right: 5px; }
 #controls ul.dropdown-menu { padding: 10px; margin: -5px 0 0 10px; }
+#controls ul.dropdown-menu.disabled { background-color: #eee; }
+#controls ul.dropdown-menu.disabled label { color: #777; }
 #controls ul.multiselect-dropdown { width: 400px; }
 #controls ul.dropdown-menu::before {
     position: absolute;
@@ -59,6 +66,7 @@ body {
     border-left: 10px solid transparent;
     content: '';
 }
+#controls ul.dropdown-menu.disabled::after { border-bottom: 10px solid #eee; }
 
 #controls input[type=checkbox], #controls input[type=radio] {
     width: 20px;
@@ -85,3 +93,5 @@ body {
     position: relative;
     padding-right: 0;
 }
+
+.d3-tip span.match { font-style: italic; }
