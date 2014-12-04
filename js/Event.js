@@ -553,6 +553,10 @@ Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
 	});
 	this.arrows = [];
 	this.drawEventArrows(svg, UNIT_HEIGHT);
+	if (this.clicked) {
+		this.showArrows();
+		this.selectEvent();
+	}
 
     if(this.isExtendedEvent()) {
         this.parentClusters.forEach(function(ec) {
