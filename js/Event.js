@@ -208,7 +208,7 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     };
 
     if(this.isExtendedEvent()) {
-        var el = ec.g.append('rect')
+        var el = svg.append('rect')
             .attr('class', 'extended-event ' + eventTypeClassMap[this.eventType])
             .attr('x', this.startx)
             .attr('y', this.getStartY(ec))
@@ -225,7 +225,7 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
 
         this.setDomElement(el, ec);
     } else {
-        var el = ec.g.append('circle')
+        var el = svg.append('circle')
             .attr('class', 'point-event '+eventTypeClassMap[this.eventType])
             .attr('cx', this.startx)
             .attr('cy', this.getStartY(ec))
@@ -544,7 +544,7 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 	}
 }
 
-Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
+Event.prototype.redraw = function(svg, UNIT_HEIGHT, tooltip) {
     this.outline.remove();
     this.drawEventOutline(svg, UNIT_HEIGHT);
 
@@ -570,6 +570,11 @@ Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
                 .attr('cx', this.startx);
         }, this);
     }
+
+    this.parentClusters.forEach(function(ec) {
+        this.getDomElement(ec).remove();
+		this.draw(svg, ec, UNIT_HEIGHT, tooltip);
+    }, this);
 
 }
 

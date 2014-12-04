@@ -452,7 +452,7 @@ function timeline(selector) {
             svg.attr('width', size.width);
 
             eventClusters.forEach(function(ec) { ec.redraw(); });
-            events.forEach(function(e) { e.redraw(svg, UNIT_HEIGHT); });
+            events.forEach(function(e) { e.redraw(svg, UNIT_HEIGHT, tooltip); });
 
 
             var s = $container.scrollLeft();
