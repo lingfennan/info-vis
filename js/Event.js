@@ -415,21 +415,13 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
     this.causedByEvents.forEach(function (ce) {
         var path = getCausalityPath(ce, this);
-        var marker = svg.append('defs').append('marker')
-            .attr('id', 'id' + this.eventId)
-            .attr('orient', 'auto')
-            .attr('markerWidth', '4')
-            .attr('markerHeight', '8')
-            .attr('refX', POINT_RADIUS)
-            .attr('refY', '4')
-            .attr('class', 'causedBy');
-        marker.append('path')
-            .attr('d', 'M0,0 V8 L4,4 Z')
-            .attr('class', 'causedByMarker')
-
         var arrow = svg.append('path')
             .attr('d', path)
-            .attr('marker-end', 'url(#id' + this.eventId + ')')
+            .attr('class', 'causedBy')
+            .style("visibility", "hidden");
+		path = addMarkers(arrow, path, ce, this);
+        arrow = svg.append('path')
+            .attr('d', path)
             .attr('id', 'id' + this.eventId)
             .attr('class', 'causedBy')
             .style("visibility", "hidden");
@@ -439,21 +431,13 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
     this.causesEvents.forEach(function (ce) {
         var path = getCausalityPath(this, ce);
-        var marker = svg.append('defs').append('marker')
-            .attr('id', 'id' + this.eventId)
-            .attr('orient', 'auto')
-            .attr('markerWidth', '4')
-            .attr('markerHeight', '8')
-            .attr('refX', POINT_RADIUS)
-            .attr('refY', '4')
-            .attr('class', 'causes');
-        marker.append('path')
-            .attr('d', 'M0,0 V8 L4,4 Z')
-            .attr('class', 'causesMarker')
-
         var arrow = svg.append('path')
             .attr('d', path)
-            .attr('marker-end', 'url(#id' + this.eventId + ')')
+            .attr('class', 'causes')
+            .style("visibility", "hidden");
+		path = addMarkers(arrow, path, this, ce);
+        arrow = svg.append('path')
+            .attr('d', path)
             .attr('id', 'id' + this.eventId)
             .attr('class', 'causes')
             .style("visibility", "hidden");
@@ -461,10 +445,36 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
         this.arrows.push(arrow);
     }, this);
 
+	function addMarkers(arrow, path, causer, causee) {
+		var arrowEl = arrow.node();
+		var arrowLength = arrowEl.getTotalLength();
+		var startPoint = arrowEl.getPointAtLength(Math.min(POINT_RADIUS, arrowLength * 0.05));
+		var endPoint = arrowEl.getPointAtLength(Math.max(arrowLength - POINT_RADIUS, arrowLength * 0.95));
+		var realEndPoint = arrowEl.getPointAtLength(arrowLength);
+		var slope = (realEndPoint.y - endPoint.y) / (realEndPoint.x - endPoint.x);
+		return getCausalityPath(causer, causee, startPoint, endPoint) + computeMarker(endPoint, realEndPoint, slope);
+	}
 
-    function getCausalityPath(causer, causee) {
+	function computeMarker(center, realEnd, slope) {
+		var point = {}, start = {}, end = {};
+	    point.x = center.x - Math.sqrt(POINT_RADIUS * POINT_RADIUS / (slope * slope + 1)) * (realEnd.x > center.x ? 1 : -1);
+		point.y = getY(slope, center, point.x);
+		var perpendicular = -1 / slope;
+		start.x = point.x - Math.sqrt(POINT_RADIUS * POINT_RADIUS / (perpendicular * perpendicular + 1));
+		end.x = point.x + Math.sqrt(POINT_RADIUS * POINT_RADIUS / (perpendicular * perpendicular + 1));
+		start.y = getY(perpendicular, point, start.x);
+		end.y = getY(perpendicular, point, end.x);
+        return ' M ' + start.x + ',' + start.y +' L' + center.x + ',' + center.y + ' L' + end.x + ',' + end.y;
+	}
+
+	function getY(slope, point, x) {
+		return slope * (x - point.x) + point.y;
+	}
+
+    function getCausalityPath (causer, causee, start, end) {
 		if (causer.startx > causee.endx) {
-//			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
+//			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + \
+//			causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
 		}
         var endx = causee.startx;
         var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
@@ -491,6 +501,14 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 			var cy1 = starty -  Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2) * (starty < endy ? 1 : -1);
 			var cy2 = endy - Math.max(60 - xdiff / 20, UNIT_HEIGHT * 2) * (starty < endy ? 1 : -1) * (xdiff < ydiff ? -1 : 1);
 			cubic = true;
+		}
+		if (start != undefined && start != null) {
+			startx = start.x;
+			starty = start.y;
+		}
+		if (start != undefined && end != null) {
+			endx = end.x;
+			endy = end.y;
 		}
 		if (cubic) 
 			return cCurveTo(startx, starty, endx, endy, cx1, cy1, cx2, cy2);
