@@ -14,11 +14,18 @@ function timeline(selector) {
         maxDate = null,
         axis = null;
 
+    var currentClustering = 'event-chains';
     var clusterBy = ['event-chains', 'event-type', "orgs"];
     var clusterByTitleMap = {
         'event-chains': 'Chain of events',
         'event-type': 'Event Type',
         'orgs': 'Organizations'
+    }
+
+    var clusteringFnMap = {
+        'event-chains': function(e) { return e.eventChains; },
+        'event-type': function(e) { return [e.eventType]; },
+        'orgs': function(e) { return e.causedByOrganizations; }
     }
 
 
@@ -181,8 +188,9 @@ function timeline(selector) {
         return false;
     }
 
-    function clusterByUpdate(cb) {
-        // todo - update clustering of events
+    function clusterByUpdate(clusterBy) {
+        currentClustering = clusterBy;
+        timeline.redraw();
     }
 
     function applySearch(terms) {
@@ -241,15 +249,68 @@ function timeline(selector) {
         }
     }
     function onDragEnd() {
-        $('#zoom-reset').fadeIn();
         var x = parseInt(dragoutline.attr('x'));
         var w = parseInt(dragoutline.attr('width'));
+
         var fullw = $(window).width(); // HACK!
         var zf = fullw / w;
 
-        timeline.zoom(zf, x + w/2);
+        if(w > 20) {
+            timeline.zoom(zf, x + w / 2);
+            $('#zoom-reset').fadeIn();
+        }
         dragStartX = -1;
         dragoutline.transition().duration(200).attr('opacity', 0);
+    }
+
+    function buildClusters() {
+        var clusterMap = {};
+        var nonClusterEvents = [];
+        var pushToClustermap = function (name, event) { // utility fn, used in next loop
+            if (clusterMap[name] != null) {
+                clusterMap[name].push(event);
+            } else {
+                clusterMap[name] = [event];
+            }
+        };
+
+        var getClusterKeys = clusteringFnMap[currentClustering];
+
+        events.forEach(function (e) {
+            e.parentClusters = [];
+            var cn = getClusterKeys(e);
+            if (Object.prototype.toString.call(cn) === '[object Array]') {
+                if (cn.length == 0) {
+                    nonClusterEvents.push(e);
+                }
+                cn.forEach(function (c) {
+                    pushToClustermap(c, e);
+                });
+            } else {
+                console.log('unknown threads returned for data item ' + cn, e);
+            }
+        });
+
+        for (var clusterName in clusterMap) {
+            if (!clusterMap.hasOwnProperty(clusterName)) {
+                continue;
+            }
+            var ec = new EventCluster(clusterName, clusterMap[clusterName]);
+            eventClusters.push(ec);
+            clusterMap[clusterName].forEach(function (e) {
+                e.parentClusters.push(ec);
+            });
+        }
+
+        nonClusterEvents.forEach(function (e) {
+            var ec = new EventCluster('', [e]);
+            eventClusters.push(ec);
+            e.parentClusters.push(ec);
+        });
+
+        eventClusters.sort(function (ec1, ec2) {
+            return ec1.startDate.getTime() - ec2.startDate.getTime();
+        });
     }
 
     var timeline = {
@@ -258,39 +319,20 @@ function timeline(selector) {
 
             events = items;
 
-            var clusterMap = {};
-            var nonClusterEvents = [];
-            var pushToClustermap = function (name, event) { // utility fn, used in next loop
-                if (clusterMap[name] != null) {
-                    clusterMap[name].push(event);
-                } else {
-                    clusterMap[name] = [event];
-                }
-            };
-
             events.forEach(function (e) {
-                var cn = getClusterKeys(e);
-                e.setClickHandler(onEventClicked);
-
                 eventTypes.push(e.eventType);
                 organizations.push.apply(organizations, e.causedByOrganizations);
                 persons.push.apply(persons, e.peopleInvolved);
-
-                if (Object.prototype.toString.call(cn) === '[object Array]') {
-                    if(cn.length==0) {
-                        nonClusterEvents.push(e);
-                    }
-                    cn.forEach(function (c) {
-                        pushToClustermap(c, e);
-                    });
-                } else {
-                    console.log('unknown threads returned for data item ' + cn, e);
-                }
+                e.setClickHandler(onEventClicked);
             });
 
             eventTypes = d3.set(eventTypes).values();
             organizations = d3.set(organizations).values();
             persons = d3.set(persons).values();
+
+
+
+            buildClusters(getClusterKeys);
 
             var eventTypeDescMap = {
                 'diplomacy': 'Diplomacy',
@@ -313,25 +355,6 @@ function timeline(selector) {
             clusterSelector = new SingleselectDropdown('#cluster-by-selector', 'cluster-by', clusterBy, clusterByTitleMap, clusterByUpdate);
             searchBar = new SearchBar(applySearch, clearSearch);
 
-            for (var clusterName in clusterMap) {
-                if (!clusterMap.hasOwnProperty(clusterName)) {
-                    continue;
-                }
-                var ec = new EventCluster(clusterName, clusterMap[clusterName]);
-                eventClusters.push(ec);
-                clusterMap[clusterName].forEach(function(e) {
-                    e.parentClusters.push(ec);
-                });
-            }
-
-            nonClusterEvents.forEach(function(e) {
-                var ec = new EventCluster('', [e]);
-                eventClusters.push(ec);
-                e.parentClusters.push(ec);
-            });
-
-            eventClusters.sort(function(ec1, ec2) { return ec1.startDate.getTime() - ec2.startDate.getTime(); });
-
             minDate = d3.min(events, function (e) {
                 return e.startDate;
             });
@@ -340,6 +363,19 @@ function timeline(selector) {
             });
 
             return timeline;
+        },
+
+        redraw: function() {
+            eventClusters.forEach(function(ec) { ec.remove(); })
+            events.forEach(function(e) { e.erase(); })
+            eventClusters = [];
+
+            buildClusters();
+
+            svg.select('g.axis').remove();
+            dragoutline.remove();
+            dragoutline = null;
+            timeline.draw();
         },
 
         draw: function () {
@@ -351,18 +387,25 @@ function timeline(selector) {
             var maxDepth = calcYCoordsAndDepthsAndGetMaxDepth();
 
             var height = (maxDepth+3) * UNIT_HEIGHT;
-
-            tooltip = createTooltip();
-            var dragbehaviour = d3.behavior.drag()
-                .on("drag", onDrag)
-                .on("dragend", onDragEnd);
-
             $(selector).css('height', height);
-            svg = d3.select(selector).append("svg").attr("width", width).attr("height", height);
-            svg.call(tooltip);
-            svg.call(dragbehaviour);
+
+            if(tooltip==null) {
+                tooltip = createTooltip();
+            }
+
+            if(svg == null) {
+                var dragbehaviour = d3.behavior.drag()
+                    .on("drag", onDrag)
+                    .on("dragend", onDragEnd);
+
+                svg = d3.select(selector).append("svg");
+                svg.call(tooltip);
+                svg.call(dragbehaviour);
+            }
+            svg.attr("width", width).attr("height", height);
 
             drawAxisAndGridLines(scaleX, height, width);
+
             eventClusters.forEach(function(ec) { ec.draw(svg, tooltip, UNIT_HEIGHT); });
             events.forEach(function(e) {
                 e.drawEventOutline(svg, UNIT_HEIGHT);
@@ -372,11 +415,13 @@ function timeline(selector) {
                 })
             });
 
+
             dragoutline = svg.append('rect')
                 .attr('x', 0).attr('y', 1)
-                .attr('height', height-2).attr('width', 0)
+                .attr('height', height - 2).attr('width', 0)
                 .attr('class', 'drag-outline')
                 .attr('opacity', 0);
+
 
             return timeline;
         },

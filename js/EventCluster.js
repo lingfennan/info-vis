@@ -73,3 +73,9 @@ EventCluster.prototype.redraw = function() {
         this.titleElement.transition().duration(250).attr('x', this.startx);
     }
 }
+EventCluster.prototype.remove = function() {
+    this.g.remove();
+    if(this.title != '') {
+        this.titleElement.remove();
+    }
+}

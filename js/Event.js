@@ -636,3 +636,13 @@ Event.prototype.findMatches = function(terms) {
         }
     }
 }
+Event.prototype.erase = function() {
+    this.outline.remove();
+    this.arrows.forEach(function (ar) {
+        ar.remove();
+    });
+    this.arrows = [];
+    this.parentClusters.forEach(function (ec) {
+        this.getDomElement(ec).remove();
+    }, this);
+}

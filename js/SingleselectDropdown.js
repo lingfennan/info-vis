@@ -12,19 +12,13 @@ function SingleselectDropdown(sel, grp, values, titlemap, selectCb) {
     });
     $container.find('input:first').prop('checked', true);
 
-    $container.find('label').click(function(e) {
-        e.stopPropagation();
-    });
-
     $container.find('input').click(function(e) {
-        e.stopPropagation();
-
         var $me = $(this).closest('li').find('input');
 
         if($container.find('input:checked').length !=1) return;
 
         var valsString = $container.find('input:checked').attr('value');
-        $sel.text(valsString);
+        $sel.text(titlemap[valsString]);
         selectCb(valsString);
     });
 

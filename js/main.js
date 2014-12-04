@@ -44,7 +44,7 @@ $(function() {
         });
 
         var t = timeline('#timeline')
-            .events(allEvents, function(e) { return e.eventChains; })
+            .events(allEvents)
             .onEventClick(onEventClicked)
             .onSearch(onSearch)
             .draw();
