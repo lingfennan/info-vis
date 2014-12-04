@@ -93,6 +93,7 @@ body {
     overflow-y: hidden;
     position: relative;
     padding-right: 0;
+    border-bottom: 1px solid #ccc;
 }
 
 .d3-tip span.match { font-style: italic; }

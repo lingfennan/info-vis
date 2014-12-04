@@ -217,6 +217,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
             .attr('width', this.endx - this.startx)
             .attr('height', 2 * POINT_RADIUS)
             .datum(this)
+            .on('mousedown', function() { d3.event.stopPropagation(); }) // Hack to prevent timeline drag from firing
+            .on('mouseup', function() { d3.event.stopPropagation(); }) // Hack to prevent timeline drag from firing
             .on('mouseover', onEventMouseover)
             .on('mouseout', onEventMouseout)
             .on('click', onEventClicked);
@@ -229,6 +231,8 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
             .attr('cy', this.getStartY(ec))
             .attr('r', POINT_RADIUS)
             .datum(this)
+            .on('mousedown', function() { d3.event.stopPropagation(); }) // Hack to prevent timeline drag from firing
+            .on('mouseup', function() { d3.event.stopPropagation(); }) // Hack to prevent timeline drag from firing
             .on('mouseover', onEventMouseover)
             .on('mouseout', onEventMouseout)
             .on('click', onEventClicked);
@@ -275,15 +279,13 @@ Event.prototype.draw = function(svg, ec, UNIT_HEIGHT, tooltip) {
     }
 
     function onEventClicked(e) {
+        d3.event.stopPropagation();
         e.clickHandler(e);
     }
 
     this.onEventMouseover = onEventMouseover; /// HACK!
     this.onEventMouseout = onEventMouseout; /// HACK!
     this.onEventClicked = onEventClicked; /// HACK!
-
-
-    this.drawEventOutline(svg, UNIT_HEIGHT);
 }
 
 Event.prototype.drawEventOutline = function(svg, UNIT_HEIGHT) {

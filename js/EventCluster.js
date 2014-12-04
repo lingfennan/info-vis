@@ -53,13 +53,18 @@ EventCluster.prototype.draw = function(svg, tooltip, UNIT_HEIGHT) {
     }
 
     this.g.on('mouseenter', function() {
-        if(me.title != '') { me.titleElement.transition().ease('linear').duration(200).style('opacity', 1); }
+        if(me.title != '') {
+            var scrollPos = $('#timeline').scrollLeft(); // HACK!
+            if(me.startx-26 < scrollPos) { // HACK! where do "26" and "30" come from?
+                me.titleElement.transition().duration(200).style('opacity', 1).attr('x', scrollPos+50);
+            } else {
+                me.titleElement.transition().duration(200).style('opacity', 1).attr('x', me.startx);
+            }
+        }
     })
     .on('mouseleave', function() {
         if(me.title != '') { me.titleElement.transition().duration(200).style('opacity', 0); }
     });
-
-    this.events.forEach(function(e) { e.draw(svg, this, UNIT_HEIGHT, tooltip); }, this);
 }
 
 EventCluster.prototype.redraw = function() {

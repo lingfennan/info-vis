@@ -26,20 +26,20 @@ function timeline(selector) {
     var onSearchCb = function() {};
 
     var UNIT_HEIGHT = 10;
-    var TIME_AXIS_HEIGHT = 50;
     var POINT_RADIUS = UNIT_HEIGHT/2 - 1;
 
     function onEventClicked(e) {
+        d3.event.stopPropagation();
         eventClickHanders.forEach(function(handler) {
             handler(e);
         });
     }
 
     function calculateChartSize() {
-        var w = (maxDate.getFullYear() - minDate.getFullYear() + 2) * 60 * zoomFactor; // 1 year = 30 px
+        var w = (maxDate.getFullYear() - minDate.getFullYear()) * 60 * zoomFactor; // 1 year = 30 px
         var yearMillis = 365 * 24 * 60 * 60 * 1000;
         var s = d3.time.scale()
-            .domain([new Date(minDate.getTime() - yearMillis), new Date(maxDate.getTime() + 10*yearMillis)])
+            .domain([new Date(minDate.getTime() - yearMillis), new Date(maxDate.getTime() + 3*yearMillis)])
             .range([0,w]);
         return { width: w, scale: s }
     }
@@ -114,11 +114,6 @@ function timeline(selector) {
         var intervals = scaleX.ticks(d3.time.years, 5);
         axis = svg.append('g').attr('class', 'axis');
 
-        axis.append('rect')
-            .attr('x', 0).attr('y', height-TIME_AXIS_HEIGHT)
-            .attr('height', TIME_AXIS_HEIGHT).attr('width', width)
-            .attr('class', 'scale-bbox');
-
         var lines = axis.selectAll('.gridline').data(intervals).enter().append('g')
             .attr('transform', function(i) { return 'translate('+scaleX(i)+',0)'})
             .attr('class', 'gridline');
@@ -127,11 +122,12 @@ function timeline(selector) {
             .attr('x1', 0)
             .attr('y1', 0)
             .attr('x2', 0)
-            .attr('y2', height - TIME_AXIS_HEIGHT);
+            .attr('y2', height);
 
         lines.append('text')
-            .attr('x', -18)
-            .attr('y', height - TIME_AXIS_HEIGHT + 18)
+            .attr('class', 'gridline-label')
+            .attr('x', 5)
+            .attr('y', 20)
             .text(function(i) { return i.getFullYear(); });
     }
 
@@ -219,6 +215,43 @@ function timeline(selector) {
         updateEventFilter();
     }
 
+    var dragoutline = null;
+    var dragStartX = -1;
+
+    $('#zoom-reset').click(function() {
+        $('#zoom-reset').hide();
+        timeline.zoom(null); // reset
+    })
+
+    function onDrag() {
+        var x = d3.mouse(this)[0];
+
+        if(dragStartX == -1) {
+            dragStartX = x;
+            dragoutline.attr('x', dragStartX);
+            dragoutline.transition().duration(200).attr('opacity', 0.2);
+        } else {
+            var w = x - dragStartX;
+
+            if (w < 0) {
+                dragoutline.attr('width', -w).attr('x', x);
+            } else {
+                dragoutline.attr('width', w);
+            }
+        }
+    }
+    function onDragEnd() {
+        $('#zoom-reset').fadeIn();
+        var x = parseInt(dragoutline.attr('x'));
+        var w = parseInt(dragoutline.attr('width'));
+        var fullw = $(window).width(); // HACK!
+        var zf = fullw / w;
+
+        timeline.zoom(zf, x + w/2);
+        dragStartX = -1;
+        dragoutline.transition().duration(200).attr('opacity', 0);
+    }
+
     var timeline = {
 
         events: function (items, getClusterKeys) {
@@ -265,7 +298,7 @@ function timeline(selector) {
                 'political development': 'Political Development',
                 'migration': 'Migration',
                 'antisemetism':'Antisemetism',
-                'org founded': 'Org-founded',
+                'org founded': 'Organization founded',
                 'war': 'War',
                 'civil unrest': 'Civil Unrest',
                 'peace process': 'Peace Process',
@@ -317,15 +350,33 @@ function timeline(selector) {
             calculateXCoords(scaleX);
             var maxDepth = calcYCoordsAndDepthsAndGetMaxDepth();
 
-            var height = (maxDepth+3) * UNIT_HEIGHT + TIME_AXIS_HEIGHT;
+            var height = (maxDepth+3) * UNIT_HEIGHT;
 
-            svg = d3.select(selector).append("svg").attr("width", width).attr("height", height);
             tooltip = createTooltip();
+            var dragbehaviour = d3.behavior.drag()
+                .on("drag", onDrag)
+                .on("dragend", onDragEnd);
+
+            $(selector).css('height', height);
+            svg = d3.select(selector).append("svg").attr("width", width).attr("height", height);
             svg.call(tooltip);
+            svg.call(dragbehaviour);
 
             drawAxisAndGridLines(scaleX, height, width);
             eventClusters.forEach(function(ec) { ec.draw(svg, tooltip, UNIT_HEIGHT); });
-            events.forEach(function(e) { e.drawEventArrows(svg, UNIT_HEIGHT); });
+            events.forEach(function(e) {
+                e.drawEventOutline(svg, UNIT_HEIGHT);
+                e.drawEventArrows(svg, UNIT_HEIGHT);
+                e.parentClusters.forEach(function(ec) {
+                    e.draw(svg, ec, UNIT_HEIGHT, tooltip);
+                })
+            });
+
+            dragoutline = svg.append('rect')
+                .attr('x', 0).attr('y', 1)
+                .attr('height', height-2).attr('width', 0)
+                .attr('class', 'drag-outline')
+                .attr('opacity', 0);
 
             return timeline;
         },
@@ -336,8 +387,19 @@ function timeline(selector) {
             return timeline;
         },
 
-        zoom: function(zf) {
-            zoomFactor = zf;
+        zoom: function(zf, newCenter) {
+            var $container = $(selector);
+            var newNewCenter = 0;
+            if(zf===null) {
+                zoomFactor = 1;
+                newNewCenter = $container.scrollLeft() + ($container.width()/2);
+                $('#zoom-reset').fadeOut();
+            } else {
+                var oldZoom = zoomFactor;
+                zoomFactor = zoomFactor * zf;
+                if(zoomFactor > 20) zoomFactor = 20;
+                newNewCenter = newCenter * (zoomFactor/oldZoom)
+            }
 
             var size = calculateChartSize();
             calculateXCoords(size.scale);
@@ -347,10 +409,10 @@ function timeline(selector) {
             eventClusters.forEach(function(ec) { ec.redraw(); });
             events.forEach(function(e) { e.redraw(svg, UNIT_HEIGHT); });
 
-            var $container = $(selector);
+
             var s = $container.scrollLeft();
-            var w = $container.width();
-            var s2 = (zf*s + w/2);
+            var w = $container.width() - parseInt($container.css('padding-left').replace('px', ''));
+            var s2 = (newNewCenter - w/2);
 
             $({s: s}).animate({ s: s2 }, {
                 duration: 250
@@ -364,8 +426,6 @@ function timeline(selector) {
                 d3.select(this).transition().duration(250).ease('linear')
                     .attr('transform', 'translate('+size.scale(d)+',0)');
             });
-
-            axis.select('.scale-bbox').attr('width', size.width);
         },
 
         onSearch: function(cb) {

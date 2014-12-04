@@ -1,11 +1,6 @@
 
-g.axis line {
-    stroke-width: 1px;
-    stroke: #ccc;
-    stroke-dasharray: 5 5;
-}
-
-g.axis .scale-bbox { stroke: none; fill: #ccc; }
+g.axis line { stroke-width: 1px; stroke: #ccc; stroke-dasharray: 5 5; }
+g.axis text { fill: #ccc; }
 
 .tooltip {
     width: auto;
@@ -54,18 +49,12 @@ g.axis .scale-bbox { stroke: none; fill: #ccc; }
     stroke: #555;
 }
 
-path.causedBy,
-path.causes {
-    fill: none;
-    stroke-width: 2px;
-    stroke: blue;
-    opacity: 1;
-}
+path.causedBy, path.causes { fill: none; stroke-width: 1.5px; opacity: 1; }
+path.causedBy { stroke: blue; }
+path.causes { stroke: #272; }
 
-path.causedByMarker,
-path.causesMarker {
-    fill: blue;
-}
+path.causedByMarker { fill: blue; }
+path.causesMarker { fill: #272; }
 
 .civil-unrest { fill: #E66000; }
 .migration { fill:#969474; }
@@ -89,3 +78,4 @@ g.xaxis line {
     shape-rendering: crispEdges;
 }
 
+.drag-outline { fill: #51C1ED; stroke: #098ABD; stroke-width: 2px; }
