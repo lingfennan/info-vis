@@ -476,10 +476,10 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 //			console.log("causer id:" + causer.eventId + ", title:" + causer.title + ", start date:" + \
 //			causer.startDate +  ", causee id:" + causee.eventId + ", title:" + causee.title + ", end date:" + causee.endDate);
 		}
-        var endx = causee.startx;
-        var endy = causee.isExtendedEvent() ? causee.getStartY(causee.parentClusters[0])+POINT_RADIUS : causee.getStartY(causee.parentClusters[0]);
-        var startx = causer.isExtendedEvent() && causer.endx < endx ? causer.endx : causer.startx;
-        var starty = causer.isExtendedEvent() ? causer.getStartY(causer.parentClusters[0])+POINT_RADIUS : causer.getStartY(causer.parentClusters[0]);
+		var startx = causer.endx > causee.startx ? causer.startx : causer.endx;
+		var starty = getShortestY(causee.getStartY(causee.parentClusters[0]), causer);
+        var endx = causee.startx < startx ? causee.endx : causee.startx;
+		var endy = getShortestY(starty, causee);
 		var xdiff = Math.abs(endx - startx);
 		var ydiff = Math.abs(endy - starty);
 		var cubic = false;
@@ -506,7 +506,7 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 			startx = start.x;
 			starty = start.y;
 		}
-		if (start != undefined && end != null) {
+		if (end != undefined && end != null) {
 			endx = end.x;
 			endy = end.y;
 		}
@@ -515,6 +515,20 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 		else
 			return qCurveTo(startx, starty, endx, endy, endx, starty);
     }
+
+	function getShortestY(basey, e) {
+		var tempy = e.getStartY(e.parentClusters[0]);
+		var min = Math.abs(tempy - basey), miny = tempy;
+		e.parentClusters.forEach(function (ec) {
+			tempy = e.getStartY(ec);
+			if (Math.abs(tempy - basey) < min) {
+				miny = tempy;
+				min = Math.abs(tempy - basey);
+			}
+		});
+		miny = e.isExtendedEvent() ? miny + POINT_RADIUS : miny;
+		return miny;
+	}
 
     function qCurveTo(x1, y1, x2, y2, cx, cy) {
         // x1, y1 is start
