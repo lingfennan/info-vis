@@ -420,6 +420,7 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
             .attr('class', 'causedBy')
             .style("visibility", "hidden");
 		path = addMarkers(arrow, path, ce, this);
+		arrow.remove();
         arrow = svg.append('path')
             .attr('d', path)
             .attr('id', 'id' + this.eventId)
@@ -436,6 +437,7 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
             .attr('class', 'causes')
             .style("visibility", "hidden");
 		path = addMarkers(arrow, path, this, ce);
+		arrow.remove();
         arrow = svg.append('path')
             .attr('d', path)
             .attr('id', 'id' + this.eventId)
@@ -544,6 +546,13 @@ Event.prototype.drawEventArrows = function(svg, UNIT_HEIGHT) {
 
 Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
     this.outline.remove();
+    this.drawEventOutline(svg, UNIT_HEIGHT);
+
+	this.arrows.forEach(function(ar) {
+		ar.remove();
+	});
+	this.arrows = [];
+	this.drawEventArrows(svg, UNIT_HEIGHT);
 
     if(this.isExtendedEvent()) {
         this.parentClusters.forEach(function(ec) {
@@ -558,7 +567,6 @@ Event.prototype.redraw = function(svg, UNIT_HEIGHT) {
         }, this);
     }
 
-    this.drawEventOutline(svg, UNIT_HEIGHT);
 }
 
 Event.prototype.setClickHandler = function(handler) {
